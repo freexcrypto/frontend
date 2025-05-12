@@ -24,7 +24,7 @@ export function NavbarHome() {
     },
     {
       name: "Integration API",
-      link: "#",
+      link: "https://0xkayz.gitbook.io/freex/integrate-api-for-marketplace",
     },
     {
       name: "Ecosystem",
@@ -32,7 +32,7 @@ export function NavbarHome() {
     },
     {
       name: "Documentation",
-      link: "#",
+      link: "https://0xkayz.gitbook.io/freex",
     },
   ];
 

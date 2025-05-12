@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
 import HeroVideoDialog from "@/components/magicui/hero-video-dialog";
+import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -16,8 +17,12 @@ export default function Hero() {
           </h2>
         </div>
         <div className="space-x-5">
-          <Button>Get Started</Button>
-          <Button variant="outline">Learn More</Button>
+          <Link href="/dashboard" target="_blank">
+            <Button>Get Started</Button>
+          </Link>
+          <Link href="https://0xkayz.gitbook.io/freex">
+            <Button variant="outline">Learn More</Button>
+          </Link>
         </div>
       </section>
 
@@ -26,14 +31,14 @@ export default function Hero() {
           <HeroVideoDialog
             className="block dark:hidden"
             animationStyle="top-in-bottom-out"
-            videoSrc="https://www.youtube.com/watch?v=hOujeRJsS7s"
+            videoSrc="https://www.youtube.com/embed/hOujeRJsS7s"
             thumbnailSrc="https://hpeomxpauqyqnmdejfgb.supabase.co/storage/v1/object/public/images/thumbnail.png"
             thumbnailAlt="Hero Video"
           />
           <HeroVideoDialog
             className="hidden dark:block"
             animationStyle="top-in-bottom-out"
-            videoSrc="https://www.youtube.com/watch?v=hOujeRJsS7s"
+            videoSrc="https://www.youtube.com/embed/hOujeRJsS7s"
             thumbnailSrc="https://hpeomxpauqyqnmdejfgb.supabase.co/storage/v1/object/public/images/thumbnail.png"
             thumbnailAlt="Hero Video"
           />
