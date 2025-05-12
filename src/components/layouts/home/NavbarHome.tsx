@@ -10,7 +10,6 @@ import {
   MobileNavToggle,
   MobileNavMenu,
 } from "@/components/ui/resizable-navbar";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function NavbarHome() {
