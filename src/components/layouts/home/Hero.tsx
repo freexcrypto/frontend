@@ -26,14 +26,14 @@ export default function Hero() {
           <HeroVideoDialog
             className="block dark:hidden"
             animationStyle="top-in-bottom-out"
-            videoSrc="https://www.youtube.com/embed/qh3NGpYRG3I?si=4rb-zSdDkVK9qxxb"
+            videoSrc="https://www.youtube.com/watch?v=hOujeRJsS7s"
             thumbnailSrc="https://hpeomxpauqyqnmdejfgb.supabase.co/storage/v1/object/public/images/thumbnail.png"
             thumbnailAlt="Hero Video"
           />
           <HeroVideoDialog
             className="hidden dark:block"
             animationStyle="top-in-bottom-out"
-            videoSrc="https://www.youtube.com/embed/qh3NGpYRG3I?si=4rb-zSdDkVK9qxxb"
+            videoSrc="https://www.youtube.com/watch?v=hOujeRJsS7s"
             thumbnailSrc="https://hpeomxpauqyqnmdejfgb.supabase.co/storage/v1/object/public/images/thumbnail.png"
             thumbnailAlt="Hero Video"
           />
