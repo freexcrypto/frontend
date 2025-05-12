@@ -9,10 +9,34 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "FREEX",
-  description: "FREEX is web3 crypto payment gateway for your business",
-};
+  title: "Freex: Web3 Crypto Payment Gateway",
+  description:
+    "Freex is a web3 solution cryptocurrency payment gateway that enables businesses to accept cryptocurrency payments seamlessly.",
+  openGraph: {
+    title: "FREEX",
+    description:
+      "Freex is a web3 solution cryptocurrency payment gateway that enables businesses to accept cryptocurrency payments seamlessly.",
+    url: "https://www.freexcrypto.xyz",
+    type: "website",
+    images: [
+      {
+        url: "https://hpeomxpauqyqnmdejfgb.supabase.co/storage/v1/object/public/images//freex_opengraph.png", // URL gambar untuk Open Graph
+        alt: "Freex: Web3 Crypto Payment Gateway",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  authors: [
+    {
+      name: "Freex Dev Team",
+      url: "https://www.freexcrypto.xyz",
+    },
+  ],
 
+  keywords:
+    "crypto payment gateway, web3, blockchain, cryptocurrency, payment gateway, crypto payment, crypto payment gateway, web3 payment gateway, blockchain payment gateway, cryptocurrency payment gateway, crypto payment gateway, web3 payment gateway, blockchain payment gateway, cryptocurrency payment gateway",
+};
 export default function RootLayout({
   children,
 }: Readonly<{
