@@ -30,10 +30,11 @@ export default function Transaction({ id }: { id: string }) {
   const { address, isConnected, chain } = useAccount();
   const { switchChain } = useSwitchChain();
   // const { connect } = useConnect();
-
   React.useEffect(() => {
-    switchChain({ chainId: liskSepolia.id });
-  }, [switchChain]);
+    if (isConnected) {
+      switchChain({ chainId: liskSepolia.id });
+    }
+  }, [switchChain, isConnected]);
 
   const {
     paymentLink,
