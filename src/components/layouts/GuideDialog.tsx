@@ -75,7 +75,9 @@ export default function GuideDialog() {
 
   return (
     <Dialog>
-      <DialogTrigger>Guidelines </DialogTrigger>
+      <DialogTrigger className="text-muted-foreground hover:text-primary transition-all duration-200">
+        Guidelines{" "}
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>How to Use This App</DialogTitle>
