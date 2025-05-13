@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useGetBusinessbyID from "@/hooks/getBusinessbyID";
 import moment from "moment";
 import { Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 export default function Information({ id }: { id: string }) {
   const {
     paymentLink,
@@ -53,9 +54,9 @@ export default function Information({ id }: { id: string }) {
   }
 
   return (
-    <div className="col-span-1 bg-secondary p-5 rounded-b-md space-y-6 shadow-md max-w-md mx-auto">
+    <div className="col-span-1 bg-secondary p-5 rounded-b-md space-y-6 shadow-md max-w-md mx-auto ">
       <h1 className="text-2xl font-bold text-center mb-2">
-        Transaction Receipt
+        Transaction Information
       </h1>
       <div className="flex items-center justify-between">
         <span className="text-muted-foreground text-sm">Transaction ID</span>
@@ -143,6 +144,14 @@ export default function Information({ id }: { id: string }) {
         </span>
       </div>
       <div className="flex flex-col gap-1 text-xs text-muted-foreground mt-2">
+        <Badge
+        // variant={paymentLink?.status === "active" ? "outline" : "default"}
+        >
+          {" "}
+          {paymentLink?.status === "active"
+            ? "Waiting for payment"
+            : "Payment already confirmed"}
+        </Badge>
         <span>
           Created:{" "}
           {paymentLink?.created_at

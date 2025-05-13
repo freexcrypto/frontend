@@ -1,13 +1,14 @@
 import PaymentForm from "@/components/PaymentForm";
 import { Button } from "@/components/ui/button";
-import { Link, CreditCard, ScrollText, Plus } from "lucide-react";
+import { CreditCard, ScrollText, Plus, Link2 } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 export default function BoxNavigation() {
   return (
     <section className="grid xl:grid-cols-3 gap-5">
       <div className="border rounded-md p-5 space-y-5">
-        <Link strokeWidth={2} size={30} />
+        <Link2 strokeWidth={2} size={30} />
         <div>
           <h1 className="text-lg font-bold">Create a payment link</h1>
           <p className="text-sm text-muted-foreground">
@@ -36,9 +37,14 @@ export default function BoxNavigation() {
             Powered your app with crypto payments through a powerful API
           </p>
         </div>
-        <Button size={"sm"}>
-          <Plus /> Start integration
-        </Button>
+        <Link
+          href="https://0xkayz.gitbook.io/freex/integrate-api-for-marketplace"
+          target="_blank"
+        >
+          <Button size={"sm"}>
+            <Plus /> Start integration
+          </Button>
+        </Link>
       </div>
     </section>
   );

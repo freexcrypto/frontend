@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -19,6 +19,7 @@ import * as Yup from "yup";
 import { toast } from "sonner";
 import useGetBusinessByUser from "@/hooks/getBusinessbyUser";
 import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 type PaymentFormProps = {
   title: string;
   description: string;
@@ -29,6 +30,8 @@ export default function PaymentForm() {
   const { business } = useGetBusinessByUser();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
+  const [usdValue, setUsdValue] = useState<number | null>(null);
   const formik = useFormik({
     initialValues: {
       title: "",
@@ -41,10 +44,38 @@ export default function PaymentForm() {
       amount: Yup.number()
         .required("Amount is required")
         .positive("Amount must be positive")
-        .min(1, "Amount must be greater than 0"),
+        .min(10000, "Minimum amount is 10000 IDRX"),
     }),
     onSubmit: handleSubmit,
   });
+
+  // Fetch exchange rate on mount
+  useEffect(() => {
+    async function fetchRate() {
+      try {
+        const res = await fetch(
+          "https://api.exchangerate-api.com/v4/latest/IDR"
+        );
+        const data = await res.json();
+        setExchangeRate(data.rates.USD);
+      } catch {
+        setExchangeRate(null);
+      }
+    }
+    fetchRate();
+  }, []);
+
+  // Calculate IDR per USD
+  const idrPerUsd = exchangeRate ? 1 / exchangeRate : null;
+
+  // Update USD value when amount or rate changes
+  useEffect(() => {
+    if (exchangeRate && formik.values.amount > 0) {
+      setUsdValue(formik.values.amount * exchangeRate);
+    } else {
+      setUsdValue(null);
+    }
+  }, [formik.values.amount, exchangeRate]);
 
   async function handleSubmit(values: PaymentFormProps) {
     setLoading(true);
@@ -143,25 +174,50 @@ export default function PaymentForm() {
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="amount">Amount</Label>
-            <Input
-              id="amount"
-              name="amount"
-              type="number"
-              min={1}
-              placeholder="example: 100"
-              value={formik.values.amount === 0 ? "" : formik.values.amount}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              aria-invalid={!!(formik.touched.amount && formik.errors.amount)}
-              aria-describedby="amount-error"
-            />
+            <Label htmlFor="amount">Amount (IDRX)</Label>
+            <div className="flex items-center gap-2 max-w-60 relative">
+              <Input
+                id="amount"
+                name="amount"
+                type="number"
+                min={1}
+                placeholder="example: 100"
+                value={formik.values.amount === 0 ? "" : formik.values.amount}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                aria-invalid={!!(formik.touched.amount && formik.errors.amount)}
+                aria-describedby="amount-error"
+              />
+              <Avatar className="absolute right-0">
+                <AvatarImage src="/images/idrx.svg" />
+                <AvatarFallback>IDRX</AvatarFallback>
+              </Avatar>
+            </div>
+            <span className="text-sm text-muted-foreground">
+              {idrPerUsd
+                ? `$1 = ${idrPerUsd.toLocaleString()} IDRX`
+                : "Loading rate..."}
+            </span>
             {formik.touched.amount && formik.errors.amount && (
               <p id="amount-error" className="text-destructive text-sm">
                 {formik.errors.amount}
               </p>
             )}
           </div>
+          <section>
+            <h3 className="text-sm font-medium">Calculation IDRX to USD</h3>
+            <div className="flex items-center gap-2">
+              <span className="text-sm">
+                {formik.values.amount !== null
+                  ? ` ${formik.values.amount.toLocaleString()} IDRX`
+                  : "IDRX"}
+              </span>
+              =
+              <span className="text-sm">
+                {usdValue !== null ? ` $${usdValue.toLocaleString()}` : "$ 0"}
+              </span>
+            </div>
+          </section>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
             <Button type="submit" disabled={loading}>
