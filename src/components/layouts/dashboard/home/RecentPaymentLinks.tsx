@@ -55,7 +55,7 @@ export default function RecentPaymentLinks() {
                 <TableCell>{moment(link.created_at).format("LLLL")}</TableCell>
                 <TableCell>
                   <Link href={link.payment_link} target="_blank">
-                    <Button>Open</Button>
+                    <Button size={"sm"}>Open</Button>
                   </Link>
                 </TableCell>
               </TableRow>
