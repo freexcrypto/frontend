@@ -7,6 +7,7 @@ import { formatUnits } from "viem";
 import useGetBusinessByUser from "@/hooks/getBusinessbyUser";
 import useGetRecentPayment from "@/hooks/getRecentPayment";
 import useGetCompanyBalance from "@/hooks/getCompanyBalance";
+import useGetOrderbyBusinessId from "@/hooks/getOrderbyBusinessId";
 export default function BalanceUser() {
   const { balanceIdrx } = useGetBalance();
   const { business } = useGetBusinessByUser();
@@ -15,16 +16,57 @@ export default function BalanceUser() {
     business?.address_wallet
   );
 
-  const total = paymentLinks
-    ? paymentLinks.reduce((sum, p) => sum + Number(p.amount), 0)
+  const { order } = useGetOrderbyBusinessId(business?.id);
+
+  // Calculate payment processing fee
+  const [usdRate, setUsdRate] = React.useState<number | null>(null);
+  const [usdValue, setUsdValue] = React.useState<number | null>(null);
+
+  // Fetch USD/IDR rate on mount
+  React.useEffect(() => {
+    async function fetchRate() {
+      try {
+        const res = await fetch(
+          "https://api.exchangerate-api.com/v4/latest/USD"
+        );
+        const data = await res.json();
+        setUsdRate(data.rates.IDR); // USD to IDR
+      } catch {
+        setUsdRate(null);
+      }
+    }
+    fetchRate();
+  }, []);
+
+  const totalOrder = Array.isArray(order)
+    ? order
+        .filter((p) => p.status_message === "paid")
+        .reduce((sum, p) => sum + Number(p.total_price), 0)
     : 0;
+
+  // Calculate IDRX value when order or rate changes
+  React.useEffect(() => {
+    if (usdRate && totalOrder) {
+      setUsdValue(totalOrder * usdRate); // USD to IDRX
+    } else {
+      setUsdValue(null);
+    }
+  }, [usdRate, totalOrder]);
+
+  const totalPayment = paymentLinks
+    ? paymentLinks
+        .filter((p) => p.status === "paid")
+        .reduce((sum, p) => sum + Number(p.amount), 0)
+    : 0;
+
+  const totalBalance = (usdValue ?? 0) + totalPayment;
   return (
     <div className="flex items-center gap-10">
       <section>
         <h1 className="text-lg font-bold">IDRX Total payments</h1>
         <div className="flex items-center gap-2">
           <NumberTicker
-            value={total}
+            value={totalBalance}
             className="whitespace-pre-wrap text-5xl font-medium tracking-tighter text-black dark:text-white"
           />
           <Avatar>

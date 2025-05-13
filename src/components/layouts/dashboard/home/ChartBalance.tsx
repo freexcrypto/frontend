@@ -19,11 +19,33 @@ import {
 } from "@/components/ui/chart";
 import useGetBusinessByUser from "@/hooks/getBusinessbyUser";
 import useGetRecentPayment from "@/hooks/getRecentPayment";
+import useGetOrderbyBusinessId from "@/hooks/getOrderbyBusinessId";
 import moment from "moment";
+import React from "react";
 
 export default function ChartBalance() {
   const { business } = useGetBusinessByUser();
   const { paymentLinks, loading } = useGetRecentPayment(business?.id);
+  const { order } = useGetOrderbyBusinessId(business?.id);
+
+  // Calculate payment processing fee
+  const [usdRate, setUsdRate] = React.useState<number | null>(null);
+
+  // Fetch USD/IDR rate on mount
+  React.useEffect(() => {
+    async function fetchRate() {
+      try {
+        const res = await fetch(
+          "https://api.exchangerate-api.com/v4/latest/USD"
+        );
+        const data = await res.json();
+        setUsdRate(data.rates.IDR); // USD to IDR
+      } catch {
+        setUsdRate(null);
+      }
+    }
+    fetchRate();
+  }, []);
 
   // Group payments by month and sum the amounts for the last 6 months
   const now = moment();
@@ -32,7 +54,9 @@ export default function ChartBalance() {
   );
   const chartData = months.map((month) => {
     const monthStr = month.format("MMMM");
-    const total = paymentLinks
+
+    // Sum paid paymentLinks for this month
+    const paymentLinksTotal = paymentLinks
       ? paymentLinks
           .filter(
             (p) =>
@@ -40,6 +64,19 @@ export default function ChartBalance() {
           )
           .reduce((sum, p) => sum + Number(p.amount), 0)
       : 0;
+
+    // Sum paid orders for this month (convert USD to IDR)
+    const ordersTotal = Array.isArray(order)
+      ? order
+          .filter(
+            (o) =>
+              moment(o.updated_at).isSame(month, "month") &&
+              o.status_message === "paid"
+          )
+          .reduce((sum, o) => sum + Number(o.total_price) * (usdRate ?? 1), 0)
+      : 0;
+
+    const total = paymentLinksTotal + ordersTotal;
     return { month: monthStr, paid: total };
   });
 
