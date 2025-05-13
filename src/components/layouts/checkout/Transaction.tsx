@@ -30,8 +30,10 @@ export default function Transaction({ id }: { id: string }) {
   // const { connect } = useConnect();
 
   React.useEffect(() => {
-    switchChain({ chainId: liskSepolia.id });
-  }, [switchChain]);
+    if (isConnected) {
+      switchChain({ chainId: liskSepolia.id });
+    }
+  }, [switchChain, isConnected]);
 
   const {
     order,
