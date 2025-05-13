@@ -61,7 +61,7 @@ export default function BalanceUser() {
 
   const totalBalance = (usdValue ?? 0) + totalPayment;
   return (
-    <div className="flex items-center gap-10">
+    <div className="flex flex-col xl:flex-row xl:items-center gap-5 xl:gap-10">
       <section>
         <h1 className="text-lg font-bold">IDRX Total payments</h1>
         <div className="flex items-center gap-2">

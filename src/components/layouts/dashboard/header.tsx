@@ -20,24 +20,32 @@ export default function Header() {
     return null;
   }
   return (
-    <header className="flex justify-between items-center">
-      <div className="flex items-center gap-5">
+    <header className="xl:flex justify-between items-center">
+      <div className="xl:flex items-center gap-5">
         <Link href="/">
           <h1 className="text-2xl font-bold">Freex</h1>
         </Link>
-        <GuideDialog />
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger className="text-muted-foreground hover:text-primary transition-all duration-200">
-              Withdraw
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>This feature is available in the soon</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <nav>
+          <ul className="flex items-center gap-5">
+            <li>
+              <GuideDialog />
+            </li>
+            <li>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger className="text-muted-foreground hover:text-primary transition-all duration-200">
+                    Withdraw
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>This feature is available in the soon</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </li>
+          </ul>
+        </nav>
       </div>
-      <div className="flex items-center gap-5">
+      <div className="flex flex-col xl:flex-row gap-5">
         {business?.id && <ProfileMenu />}
         <ConnectButtonCustom />
       </div>
