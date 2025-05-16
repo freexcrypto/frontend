@@ -16,24 +16,51 @@ import { Loader2, CheckCircle2 } from "lucide-react";
 import {
   IDRX_CONTRACT_ABI,
   IDRX_CONTRACT_ADDRESS,
+  IDRX_CONTRACT_ADDRESS_BASE,
 } from "@/config/IdrxContract";
 import { parseUnits } from "viem";
 import Link from "next/link";
-import { liskSepolia } from "viem/chains";
-import { TransferContractABI } from "@/config/TransferContract";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  TransferContract_BASE,
+  TransferContractABI,
+} from "@/config/TransferContract";
 import { TransferContract } from "@/config/TransferContract";
 import { ConnectButtonCustom } from "@/components/ConnectButtonCustom";
 import useGetOrderbyId from "@/hooks/getOrderbyId";
+
+const CHAIN_CONFIG: Record<
+  number,
+  {
+    tokenContract: `0x${string}`;
+    transferContract: `0x${string}`;
+    explorer: string;
+    name: string;
+  }
+> = {
+  4202: {
+    tokenContract: IDRX_CONTRACT_ADDRESS as `0x${string}`,
+    transferContract: TransferContract as `0x${string}`,
+    explorer: "https://sepolia-blockscout.lisk.com",
+    name: "Lisk Sepolia",
+  },
+  84532: {
+    tokenContract: IDRX_CONTRACT_ADDRESS_BASE as `0x${string}`,
+    transferContract: TransferContract_BASE as `0x${string}`,
+    explorer: "https://base-sepolia.blockscout.com",
+    name: "Base Sepolia",
+  },
+};
+
 export default function Transaction({ id }: { id: string }) {
   const { address, isConnected, chain } = useAccount();
-  const { switchChain } = useSwitchChain();
-  // const { connect } = useConnect();
-
-  React.useEffect(() => {
-    if (isConnected) {
-      switchChain({ chainId: liskSepolia.id });
-    }
-  }, [switchChain, isConnected]);
+  const { chains, switchChain } = useSwitchChain();
 
   const {
     order,
@@ -51,6 +78,23 @@ export default function Transaction({ id }: { id: string }) {
   const [paying, setPaying] = useState(false);
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
   const [txError, setTxError] = useState<string | undefined>(undefined);
+
+  const [tokenContract, setTokenContract] = useState<`0x${string}`>();
+  const [transferContract, setTransferContract] = useState<`0x${string}`>();
+  const [explorer, setExplorer] = useState<string>("");
+
+  // Set contracts and explorer based on chain
+  useEffect(() => {
+    if (chain?.id && CHAIN_CONFIG[chain.id]) {
+      setTokenContract(CHAIN_CONFIG[chain.id].tokenContract);
+      setTransferContract(CHAIN_CONFIG[chain.id].transferContract);
+      setExplorer(CHAIN_CONFIG[chain.id].explorer);
+    } else {
+      setTokenContract(undefined);
+      setTransferContract(undefined);
+      setExplorer("");
+    }
+  }, [chain]);
 
   // Calculate payment processing fee
   const [usdRate, setUsdRate] = useState<number | null>(null);
@@ -130,7 +174,8 @@ export default function Transaction({ id }: { id: string }) {
             sender_address_wallet: address,
             //   customer_name: customerName,
             status_message: "paid",
-            transaction_hash: txHash,
+            transaction_hash:
+              explorer && txHash ? `${explorer}/tx/${txHash}` : "", // Only the hash
           }),
         }
       )
@@ -145,7 +190,7 @@ export default function Transaction({ id }: { id: string }) {
     }
     // Reset flag if txHash changes (new transaction)
     if (!receipt) hasUpdatedDb.current = false;
-  }, [receipt, txHash, id, address, order?.success_url]);
+  }, [receipt, txHash, id, address, order?.success_url, explorer]);
 
   // Handle Pay button click
   async function handlePay() {
@@ -159,14 +204,17 @@ export default function Transaction({ id }: { id: string }) {
     try {
       // Approve contract to spend tokens
       await writeContractAsync({
-        address: IDRX_CONTRACT_ADDRESS,
+        address: tokenContract as `0x${string}`,
         abi: IDRX_CONTRACT_ABI,
         functionName: "approve",
-        args: [TransferContract, parseUnits(totalAmount.toString(), 2)],
+        args: [
+          transferContract as `0x${string}`,
+          parseUnits(totalAmount.toString(), 2),
+        ],
       });
       // Transfer tokens
       const hash = await writeContractAsync({
-        address: TransferContract,
+        address: transferContract as `0x${string}`,
         abi: TransferContractABI,
         functionName: "splitTransfer",
         args: [
@@ -211,6 +259,9 @@ export default function Transaction({ id }: { id: string }) {
       </div>
     );
   }
+
+  const config = chain?.id ? CHAIN_CONFIG[chain.id] : undefined;
+  const isSupportedNetwork = !!config;
 
   return (
     <div className="p-5 space-y-5 border shadow-md rounded-md max-w-sm">
@@ -265,10 +316,39 @@ export default function Transaction({ id }: { id: string }) {
 
       <section className="space-y-2">
         <h1 className="text-lg font-bold">Transaction Information</h1>
-        <div>
-          <p>Network</p>
-          <strong>{chain?.name || "No Network"}</strong>
-        </div>
+        {!order?.transaction_hash && (
+          <>
+            <div>
+              <p>
+                Network:{" "}
+                <strong>{chain?.name || config?.name || "Unknown"}</strong>
+              </p>
+              <Select
+                onValueChange={(value) =>
+                  switchChain({ chainId: Number(value) })
+                }
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder={chain?.name || "Select Network"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {chains.map((chain) => (
+                    <SelectItem key={chain.id} value={String(chain.id)}>
+                      {chain.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <>
+              {!isSupportedNetwork && (
+                <div className="text-xs text-destructive mt-2">
+                  Please switch to a supported network.
+                </div>
+              )}
+            </>
+          </>
+        )}
 
         <div>
           <p>From</p>
@@ -307,7 +387,7 @@ export default function Transaction({ id }: { id: string }) {
           <div className="text-xs break-all">
             Tx Hash:{" "}
             <a
-              href={`https://sepolia-blockscout.lisk.com/tx/${txHash}`}
+              href={`${explorer}/tx/${txHash}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 underline"
@@ -340,7 +420,7 @@ export default function Transaction({ id }: { id: string }) {
               Tx Hash:{" "}
               {order.transaction_hash ? (
                 <Link
-                  href={`https://sepolia-blockscout.lisk.com/tx/${order.transaction_hash}`}
+                  href={`${explorer}/tx/${order.transaction_hash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline"

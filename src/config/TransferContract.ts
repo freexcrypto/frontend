@@ -1,4 +1,6 @@
 export const TransferContract = "0x489A22D1ba1a4f34eb7262E41dd4BDF90Fb685fB";
+export const TransferContract_BASE =
+  "0x35eCE9e3af364524301a7d608E459914229551C3";
 
 export const TransferContractABI = [
   {

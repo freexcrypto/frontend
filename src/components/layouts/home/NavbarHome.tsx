@@ -28,7 +28,7 @@ export function NavbarHome() {
     },
     {
       name: "Ecosystem",
-      link: "#",
+      link: "https://bento.me/freex",
     },
     {
       name: "Documentation",

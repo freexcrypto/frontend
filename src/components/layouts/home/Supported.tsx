@@ -7,7 +7,7 @@ export default function Supported() {
       <h1 className="text-center text-xl font-bold text-muted-foreground">
         On-chain ecosystem supported
       </h1>
-      <VelocityScroll>IDRX - LISK - XELLAR -</VelocityScroll>
+      <VelocityScroll>IDRX - LISK - XELLAR - BASE -</VelocityScroll>
     </section>
   );
 }

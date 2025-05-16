@@ -61,19 +61,18 @@ export default function RecentPayments() {
                 {paymentLink.amount}
               </TableCell>
               <TableCell className="font-medium">
-                {paymentLink.sender_address_wallet?.slice(0, 6)}...
-                {paymentLink.sender_address_wallet?.slice(-6)}
+                {paymentLink.sender_address_wallet?.slice(0, 4)}...
+                {paymentLink.sender_address_wallet?.slice(-4)}
               </TableCell>
               <TableCell>{paymentLink.customer_name}</TableCell>
               <TableCell>
                 <Link
-                  href={`https://sepolia-blockscout.lisk.com/tx/${paymentLink.transaction_hash}`}
+                  href={`${paymentLink.transaction_hash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline"
                 >
-                  {paymentLink.transaction_hash.slice(0, 6)}...
-                  {paymentLink.transaction_hash.slice(-6)}
+                  {paymentLink.transaction_hash?.slice(-6)}
                 </Link>
               </TableCell>
               <TableCell>
