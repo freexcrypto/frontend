@@ -34,6 +34,13 @@ import {
 import { TransferContract } from "@/config/TransferContract";
 import { ConnectButtonCustom } from "@/components/ConnectButtonCustom";
 import useGetOrderbyId from "@/hooks/getOrderbyId";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { QRCodeSVG } from "qrcode.react";
 
 const CHAIN_CONFIG: Record<
   number,
@@ -263,6 +270,8 @@ export default function Transaction({ id }: { id: string }) {
   const config = chain?.id ? CHAIN_CONFIG[chain.id] : undefined;
   const isSupportedNetwork = !!config;
 
+  const qrValue = `https://www.freexcrypto.xyz/checkout/${id}`;
+
   return (
     <div className="p-5 space-y-5 border shadow-md rounded-md max-w-sm">
       {redirecting && (
@@ -316,7 +325,7 @@ export default function Transaction({ id }: { id: string }) {
 
       <section className="space-y-2">
         <h1 className="text-lg font-bold">Transaction Information</h1>
-        {!order?.transaction_hash && (
+        {!order?.transaction_hash && receipt && (
           <>
             <div>
               <p>
@@ -420,7 +429,7 @@ export default function Transaction({ id }: { id: string }) {
               Tx Hash:{" "}
               {order.transaction_hash ? (
                 <Link
-                  href={`${explorer}/tx/${order.transaction_hash}`}
+                  href={`${order.transaction_hash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline"
@@ -458,12 +467,32 @@ export default function Transaction({ id }: { id: string }) {
                     : "Processing..."}
                 </span>
               ) : (
-                "Confirm Payment"
+                <>
+                  {order?.status_message === "paid"
+                    ? "Payment already confirmed"
+                    : "Confirm Payment"}
+                </>
               )}
             </Button>
           )
         ) : (
           <ConnectButtonCustom />
+        )}
+        {/* Only show QR code payment option if not paid */}
+        {order?.status_message !== "paid" && (
+          <Accordion type="single" collapsible>
+            <AccordionItem value="item-1">
+              <AccordionTrigger className="font-bold">
+                Pay with QR Code (optional)
+              </AccordionTrigger>
+              <AccordionContent className="flex flex-col items-center gap-2">
+                <QRCodeSVG value={qrValue} />
+                <span className="text-xs text-muted-foreground text-center">
+                  Scan this QR code with your wallet app to pay from your phone
+                </span>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         )}
       </section>
     </div>

@@ -35,6 +35,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { QRCodeSVG } from "qrcode.react";
 
 const CHAIN_CONFIG: Record<
   number,
@@ -217,6 +224,8 @@ export default function Transaction({ id }: { id: string }) {
   const config = chain?.id ? CHAIN_CONFIG[chain.id] : undefined;
   const isSupportedNetwork = !!config;
 
+  const qrValue = `https://www.freexcrypto.xyz/pay/${id}`;
+
   return (
     <div className="p-5 space-y-5 border shadow-md rounded-md max-w-sm">
       {paymentLink?.status === "paid" && (
@@ -360,7 +369,7 @@ export default function Transaction({ id }: { id: string }) {
                 <Link
                   href={
                     explorer && paymentLink.transaction_hash
-                      ? `${explorer}/tx/${paymentLink.transaction_hash}`
+                      ? `${paymentLink.transaction_hash}`
                       : "#"
                   }
                   target="_blank"
@@ -406,6 +415,21 @@ export default function Transaction({ id }: { id: string }) {
           )
         ) : (
           <ConnectButtonCustom />
+        )}
+        {paymentLink?.status !== "paid" && (
+          <Accordion type="single" collapsible>
+            <AccordionItem value="item-1">
+              <AccordionTrigger className="font-bold">
+                Pay with QR Code (optional)
+              </AccordionTrigger>
+              <AccordionContent className="flex flex-col items-center gap-2">
+                <QRCodeSVG value={qrValue} />
+                <span className="text-xs text-muted-foreground text-center">
+                  Scan this QR code with your wallet app to pay from your phone
+                </span>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         )}
       </section>
     </div>
