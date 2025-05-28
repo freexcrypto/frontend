@@ -22,6 +22,7 @@ export default function useGetAllPaymentLinks() {
   const [error, setError] = React.useState<Error | null>(null);
 
   React.useEffect(() => {
+    if (!business?.id) return; // Only fetch if business_id is valid
     const fetchBusiness = async () => {
       try {
         setLoading(true);

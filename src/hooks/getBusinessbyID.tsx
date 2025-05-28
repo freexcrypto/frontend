@@ -16,14 +16,13 @@ export default function useGetBusinessbyID(business_id: string | undefined) {
   const [error, setError] = React.useState<Error | null>(null);
 
   React.useEffect(() => {
+    if (!business_id) return; // Only fetch if business_id is valid
     const fetchBusiness = async () => {
       try {
         setLoading(true);
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/business/${business_id}`,
-          {
-            cache: "no-store",
-          }
+          { cache: "no-store" }
         );
         const data = await response.json();
         setBusiness(data.data);

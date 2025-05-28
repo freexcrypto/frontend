@@ -35,6 +35,7 @@ export default function useGetOrderbyBusinessId(
   const [error, setError] = React.useState<Error | null>(null);
 
   React.useEffect(() => {
+    if (!business_id) return; // Only fetch if business_id is valid
     const fetchBusiness = async () => {
       try {
         setLoading(true);

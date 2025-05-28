@@ -41,7 +41,25 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { QRCodeSVG } from "qrcode.react";
+import Image from "next/image";
+import useGetQRCode from "@/hooks/getQRCode";
+import { createPublicClient, http } from "viem";
+import { useRouter } from "next/navigation";
+import { liskSepolia } from "viem/chains";
+// Add a helper to get the public client for the current chain
+function getPublicClient(chainId?: number) {
+  if (!chainId) return undefined;
+  const rpcUrls: Record<number, string> = {
+    4202: liskSepolia.rpcUrls.default.http[0], // Lisk Sepolia RPC endpoint
+    84532: "https://sepolia.base.org", // Base Sepolia
+  };
+  const rpcUrl = rpcUrls[chainId];
+  if (!rpcUrl) return undefined;
+  return createPublicClient({
+    chain: undefined,
+    transport: http(rpcUrl),
+  });
+}
 
 const CHAIN_CONFIG: Record<
   number,
@@ -69,7 +87,6 @@ const CHAIN_CONFIG: Record<
 export default function Transaction({ id }: { id: string }) {
   const { address, isConnected, chain } = useAccount();
   const { chains, switchChain } = useSwitchChain();
-  // const { connect } = useConnect();
 
   const {
     paymentLink,
@@ -81,6 +98,12 @@ export default function Transaction({ id }: { id: string }) {
     loading: businessLoading,
     error: businessError,
   } = useGetBusinessbyID(paymentLink?.business_id || "");
+
+  const { qrCode } = useGetQRCode(
+    id,
+    paymentLink?.business_id || "",
+    String(chain?.id)
+  );
 
   // State for customer name input
   const [customerName, setCustomerName] = useState("");
@@ -151,6 +174,110 @@ export default function Transaction({ id }: { id: string }) {
     }
     if (!receipt) hasUpdatedDb.current = false;
   }, [receipt, txHash, id, address, customerName, explorer]);
+
+  const router = useRouter();
+
+  // Polling for QR payments (auto-confirm)
+  useEffect(() => {
+    if (
+      !business?.address_wallet ||
+      !tokenContract ||
+      !paymentLink ||
+      paymentLink.status === "paid"
+    )
+      return;
+    const client = getPublicClient(chain?.id);
+    if (!client) return;
+    let stopped = false;
+    const RECENT_BLOCKS = 2000;
+
+    async function pollForPayment() {
+      try {
+        if (!business?.address_wallet || !paymentLink || !client) return;
+        // The amount (in smallest unit)
+        // const expectedAmount = parseUnits(totalAmount.toString(), 2);
+        // Get the latest block number
+        const latestBlock = await client.getBlockNumber();
+        // Get logs for Transfer events to the business address
+        const logs = await client.getLogs({
+          address: tokenContract,
+          event: {
+            type: "event",
+            name: "Transfer",
+            inputs: [
+              { indexed: true, name: "from", type: "address" },
+              { indexed: true, name: "to", type: "address" },
+              { indexed: false, name: "value", type: "uint256" },
+            ],
+          },
+          args: {
+            to: business.address_wallet as `0x${string}`,
+          },
+          fromBlock:
+            latestBlock > BigInt(RECENT_BLOCKS)
+              ? latestBlock - BigInt(RECENT_BLOCKS)
+              : BigInt(0),
+          toBlock: "latest",
+        });
+        // Find a log with the correct value
+        const match = logs.find((log: unknown) => {
+          const l = log as { args: { value: bigint } };
+          return l.args.value === parseUnits(paymentLink.amount.toString(), 2);
+        });
+        if (match && !stopped) {
+          const l = match as {
+            args: { from: string };
+            transactionHash: string;
+          };
+          // Update DB as paid
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment-link/${id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              sender_address_wallet: l.args.from,
+              customer_name: `QR-${l.args.from.slice(-6)}`,
+              transaction_hash:
+                explorer && l.transactionHash
+                  ? `${explorer}/tx/${l.transactionHash}`
+                  : l.transactionHash,
+              status: "paid",
+            }),
+          })
+            .then(async (res) => {
+              if (!res.ok) throw new Error("Failed to update payment link");
+              toast.success("Payment detected and status updated!");
+              stopped = true;
+              window.location.href = `/pay/${id}`;
+            })
+            .catch((err) => {
+              toast.error("Failed to update payment status: " + err.message);
+            });
+        }
+        console.log("Lisk logs:", logs);
+      } catch {
+        // Optionally log error
+      }
+    }
+    // Run once immediately
+    pollForPayment();
+    const interval = setInterval(pollForPayment, 3000); // every 10 seconds
+    return () => {
+      stopped = true;
+      clearInterval(interval);
+    };
+  }, [
+    business?.address_wallet,
+    tokenContract,
+    paymentLink,
+    chain,
+    totalAmount,
+    explorer,
+    id,
+    customerName,
+    router,
+  ]);
 
   // Handle Pay button click
   async function handlePay() {
@@ -224,7 +351,7 @@ export default function Transaction({ id }: { id: string }) {
   const config = chain?.id ? CHAIN_CONFIG[chain.id] : undefined;
   const isSupportedNetwork = !!config;
 
-  const qrValue = `https://www.freexcrypto.xyz/pay/${id}`;
+  const qrValue = qrCode;
 
   return (
     <div className="p-5 space-y-5 border shadow-md rounded-md max-w-sm">
@@ -423,7 +550,13 @@ export default function Transaction({ id }: { id: string }) {
                 Pay with QR Code (optional)
               </AccordionTrigger>
               <AccordionContent className="flex flex-col items-center gap-2">
-                <QRCodeSVG value={qrValue} />
+                {/* <QRCodeSVG value={qrValue || ""} /> */}
+                <Image
+                  src={qrValue || ""}
+                  alt="QR Code"
+                  width={200}
+                  height={200}
+                />
                 <span className="text-xs text-muted-foreground text-center">
                   Scan this QR code with your wallet app to pay from your phone
                 </span>
