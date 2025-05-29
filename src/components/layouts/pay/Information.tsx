@@ -54,18 +54,18 @@ export default function Information({ id }: { id: string }) {
   }
 
   return (
-    <div className="col-span-1 bg-secondary p-5 rounded-b-md space-y-6 shadow-md max-w-md mx-auto ">
-      <h1 className="text-2xl font-bold text-center mb-2">
-        Transaction Information
-      </h1>
-      <div className="flex items-center justify-between">
-        <span className="text-muted-foreground text-sm">Transaction ID</span>
-        <span className="font-mono text-primary text-xs">{id}</span>
+    <div className="col-span-1 p-5 rounded-b-md space-y-5">
+      <h1 className="text-2xl font-bold mb-2">Transaction Information</h1>
+      <div className="flex items-center gap-5 text-sm">
+        <span className="text-muted-foreground">Transaction ID</span>
+        <span className="text-primary font-bold">{id}</span>
       </div>
       <hr />
       {/* Only render business info if paymentLink is available */}
       <div className="space-y-2">
-        <h2 className="text-lg font-bold flex items-center gap-2">Business</h2>
+        <h2 className="text-lg font-bold flex items-center gap-2">
+          Business Details
+        </h2>
         {businessLoading ? (
           <div className="flex items-center gap-2">
             <Loader2 className="size-5 animate-spin" />
@@ -75,24 +75,24 @@ export default function Information({ id }: { id: string }) {
           <div className="text-destructive">Business not found.</div>
         ) : (
           <div className="flex items-center gap-4">
-            <Avatar className="size-12 bg-black">
+            <Avatar className="size-12 bg-primary">
               <AvatarImage
                 src={business.logo || "/images/default-business.png"}
               />
-              <AvatarFallback>{business.nama?.charAt(0) || "?"}</AvatarFallback>
+              <AvatarFallback>{business.nama?.charAt(1) || "?"}</AvatarFallback>
             </Avatar>
             <div>
               <div className="font-bold text-base">{business.nama || "-"}</div>
-              <div className="text-xs mt-1">
+              <div className="text-sm mt-1">
                 <span className="text-muted-foreground">Business Wallet:</span>{" "}
-                <span className="text-primary font-mono">
+                <span className="text-primary font-medium">
                   {business.address_wallet || "-"}
                 </span>
               </div>
             </div>
           </div>
         )}
-        <div className="text-muted-foreground text-xs">
+        <div className="text-muted-foreground text-sm max-w-xl">
           {business?.deskripsi || "-"}
         </div>
       </div>
@@ -102,29 +102,29 @@ export default function Information({ id }: { id: string }) {
           Payment Details
         </h2>
         <div className="flex flex-col gap-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Title</span>
-            <span>{paymentLink?.title || "-"}</span>
+          <div>
+            <p className="text-muted-foreground">Title</p>
+            <p className="text-lg">{paymentLink?.title || "-"}</p>
           </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Description</span>
-            <span>{paymentLink?.description || "-"}</span>
+          <div>
+            <p className="text-muted-foreground">Description</p>
+            <p className="text-lg">{paymentLink?.description || "-"}</p>
           </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Amount</span>
-            <span className="flex items-center gap-1 font-bold">
-              {Number(paymentLink?.amount) || 0} IDRX
-              <Avatar className="size-5">
+          <div>
+            <p className="text-muted-foreground">Amount</p>
+            <span className="flex items-center gap-1 font-bold text-lg">
+              {Number(paymentLink?.amount).toLocaleString()} IDRX
+              <Avatar className="size-6">
                 <AvatarImage src="/images/idrx.svg" />
                 <AvatarFallback>IDRX</AvatarFallback>
               </Avatar>
             </span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Processing Fee (0.1%)</span>
-            <span className="flex items-center gap-1">
-              {paymentProcessingFee} IDRX
-              <Avatar className="size-5">
+          <div>
+            <p className="text-muted-foreground">Processing Fee (0.1%)</p>
+            <span className="flex items-center gap-1 font-bold text-lg">
+              {paymentProcessingFee.toLocaleString()} IDRX
+              <Avatar className="size-6">
                 <AvatarImage src="/images/idrx.svg" />
                 <AvatarFallback>IDRX</AvatarFallback>
               </Avatar>
@@ -136,14 +136,14 @@ export default function Information({ id }: { id: string }) {
       <div className="flex justify-between items-center text-lg font-bold">
         <span>Total Payable</span>
         <span className="flex items-center gap-1 text-primary">
-          {totalAmount} IDRX
-          <Avatar className="size-5">
+          {totalAmount.toLocaleString()} IDRX
+          <Avatar className="size-6">
             <AvatarImage src="/images/idrx.svg" />
             <AvatarFallback>IDRX</AvatarFallback>
           </Avatar>
         </span>
       </div>
-      <div className="flex flex-col gap-1 text-xs text-muted-foreground mt-2">
+      <div className="flex flex-col gap-1 text-muted-foreground mt-2">
         <Badge
         // variant={paymentLink?.status === "active" ? "outline" : "default"}
         >

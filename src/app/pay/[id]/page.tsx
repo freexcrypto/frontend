@@ -9,7 +9,7 @@ export default async function page({
 }) {
   const { id } = await params;
   return (
-    <main className="grid grid-cols-1 md:grid-cols-2 max-w-7xl mx-auto place-content-center min-h-screen p-5">
+    <main className="grid grid-cols-1 md:grid-cols-2 min-h-screen max-w-7xl mx-auto place-content-center">
       <div className="col-span-1">
         <Information id={id} />
       </div>

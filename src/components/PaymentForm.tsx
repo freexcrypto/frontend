@@ -205,18 +205,16 @@ export default function PaymentForm() {
             )}
           </div>
           <section>
-            <h3 className="text-sm font-medium">Calculation IDRX to USD</h3>
-            <div className="flex items-center gap-2">
-              <span className="text-sm">
-                {formik.values.amount !== null
-                  ? ` ${formik.values.amount.toLocaleString()} IDRX`
-                  : "IDRX"}
-              </span>
-              =
-              <span className="text-sm">
-                {usdValue !== null ? ` $${usdValue.toLocaleString()}` : "$ 0"}
-              </span>
-            </div>
+            <h3 className="text-sm font-medium">
+              Recieve{" "}
+              <strong>
+                {" "}
+                {usdValue !== null
+                  ? ` $${usdValue.toLocaleString()}`
+                  : "$ 0"}{" "}
+                USD
+              </strong>
+            </h3>
           </section>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>

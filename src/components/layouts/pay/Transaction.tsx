@@ -46,7 +46,9 @@ import useGetQRCode from "@/hooks/getQRCode";
 import { createPublicClient, http } from "viem";
 import { useRouter } from "next/navigation";
 import { liskSepolia } from "viem/chains";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 // Add a helper to get the public client for the current chain
+
 function getPublicClient(chainId?: number) {
   if (!chainId) return undefined;
   const rpcUrls: Record<number, string> = {
@@ -354,9 +356,9 @@ export default function Transaction({ id }: { id: string }) {
   const qrValue = qrCode;
 
   return (
-    <div className="p-5 space-y-5 border shadow-md rounded-md max-w-sm">
+    <div className="p-5 space-y-5 border shadow-md rounded-md max-w-md">
       {paymentLink?.status === "paid" && (
-        <div className="flex items-center gap-2 p-4 mb-2 bg-green-50 border border-green-200 rounded-md max-w-sm">
+        <div className="flex items-center gap-2 p-4 mb-2 bg-green-50 border border-green-200 rounded-md">
           <CheckCircle2 className="text-green-600 size-6" />
           <div>
             <div className="font-bold text-green-700">Payment Confirmed</div>
@@ -366,24 +368,22 @@ export default function Transaction({ id }: { id: string }) {
           </div>
         </div>
       )}
-      <h1 className="text-2xl font-bold">Payment Transaction</h1>
-      <p className="text-muted-foreground text-sm">
-        ID Payment: <strong className="text-primary">{id}</strong>
-      </p>
-
+      {paymentLink?.status === "active" && (
+        <h1 className="text-2xl font-bold mb-2">Payment Confirmation</h1>
+      )}
       <section className="space-y-2">
         <h1 className="text-lg font-bold">Customer Information</h1>
         {paymentLink?.customer_name && (
-          <p>
-            Customer Name: <strong>{paymentLink.customer_name}</strong>
-          </p>
+          <div>
+            <p className="text-sm">Customer Name</p>
+            <strong>{paymentLink.customer_name}</strong>
+          </div>
         )}
         {!paymentLink?.customer_name && (
           <div className="space-y-2">
             <Label htmlFor="customer-name">Name</Label>
             <Input
               id="customer-name"
-              className="max-w-sm"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
               placeholder="Enter your name"
@@ -394,22 +394,72 @@ export default function Transaction({ id }: { id: string }) {
           </div>
         )}
       </section>
-
-      <section className="space-y-2">
+      <hr />
+      <section className="space-y-5">
         <h1 className="text-lg font-bold">Transaction Information</h1>
+        <div>
+          <div>
+            <p className="text-sm">From</p>
+            {!paymentLink?.sender_address_wallet && (
+              <p className="text-primary font-bold">
+                {address?.slice(0, 6)}...{address?.slice(-6)} (Your Wallet)
+              </p>
+            )}
+          </div>
+          {paymentLink?.sender_address_wallet && (
+            <p className="text-primary font-bold">
+              {paymentLink.sender_address_wallet?.slice(0, 6)}...
+              {paymentLink.sender_address_wallet?.slice(-6)} (Sender Wallet)
+            </p>
+          )}
+
+          <div>
+            <p className="text-sm">To</p>
+            <p className="text-primary font-bold">
+              {business?.address_wallet?.slice(0, 6)}...
+              {business?.address_wallet?.slice(-6)} ({business?.nama || "-"})
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm">Amount</p>
+            <p className="text-primary font-bold flex items-center gap-1">
+              {totalAmount.toLocaleString()} IDRX{" "}
+              <Avatar className="size-6">
+                <AvatarImage src="/images/idrx.svg" />
+                <AvatarFallback>IDRX</AvatarFallback>
+              </Avatar>
+            </p>
+          </div>
+        </div>
+
+        {txError && <div className="text-destructive text-sm">{txError}</div>}
+        {txHash && (
+          <div className="text-xs break-all">
+            Tx Hash:{" "}
+            <a
+              href={explorer && txHash ? `${explorer}/tx/${txHash}` : "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline"
+            >
+              {txHash}
+            </a>
+          </div>
+        )}
+
+        <hr />
+
         {!paymentLink?.transaction_hash && (
           <>
-            <div>
-              <p>
-                Network:{" "}
-                <strong>{chain?.name || config?.name || "Unknown"}</strong>
-              </p>
+            <div className="space-y-2">
+              <p className="text-sm">Network</p>
               <Select
                 onValueChange={(value) =>
                   switchChain({ chainId: Number(value) })
                 }
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={chain?.name || "Select Network"} />
                 </SelectTrigger>
                 <SelectContent>
@@ -430,46 +480,7 @@ export default function Transaction({ id }: { id: string }) {
             </>
           </>
         )}
-        <div>
-          <p>From</p>
-          {!paymentLink?.sender_address_wallet && (
-            <p className="text-primary font-bold">
-              {address?.slice(0, 6)}...{address?.slice(-6)} (Your Wallet)
-            </p>
-          )}
-        </div>
-        {paymentLink?.sender_address_wallet && (
-          <p className="text-primary font-bold">
-            {paymentLink.sender_address_wallet?.slice(0, 6)}...
-            {paymentLink.sender_address_wallet?.slice(-6)} (Sender Wallet)
-          </p>
-        )}
 
-        <div>
-          <p>To</p>
-          <p className="text-primary font-bold">
-            {business?.address_wallet?.slice(0, 6)}...
-            {business?.address_wallet?.slice(-6)} ({business?.nama || "-"})
-          </p>
-        </div>
-        <div>
-          <p>Amount</p>
-          <p className="text-primary font-bold">{totalAmount} IDRX</p>
-        </div>
-        {txError && <div className="text-destructive text-sm">{txError}</div>}
-        {txHash && (
-          <div className="text-xs break-all">
-            Tx Hash:{" "}
-            <a
-              href={explorer && txHash ? `${explorer}/tx/${txHash}` : "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 underline"
-            >
-              {txHash}
-            </a>
-          </div>
-        )}
         {receiptLoading && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="size-4 animate-spin" /> Waiting for
@@ -484,14 +495,16 @@ export default function Transaction({ id }: { id: string }) {
             <div className="font-semibold text-green-700 mb-1">
               Payment Details
             </div>
-            <div className="text-xs text-green-700">
-              Customer: {paymentLink.customer_name || "-"}
+            <div className="text-sm text-green-700">
+              <p>Customer</p>
+              <strong>{paymentLink.customer_name || "-"}</strong>
             </div>
-            <div className="text-xs text-green-700">
-              Sender Wallet: {paymentLink.sender_address_wallet || "-"}
+            <div className="text-sm text-green-700">
+              <p>Sender Wallet</p>
+              <strong>{paymentLink.sender_address_wallet || "-"}</strong>
             </div>
-            <div className="text-xs text-green-700">
-              Transaction Hash:{" "}
+            <div className="text-sm text-green-700">
+              <p>Transaction Hash</p>
               {paymentLink.transaction_hash ? (
                 <Link
                   href={
@@ -503,8 +516,7 @@ export default function Transaction({ id }: { id: string }) {
                   rel="noopener noreferrer"
                   className="underline"
                 >
-                  {paymentLink.transaction_hash.slice(0, 6)}...
-                  {paymentLink.transaction_hash.slice(-6)}
+                  <strong> {paymentLink.transaction_hash.slice(0, 50)}</strong>
                 </Link>
               ) : (
                 "-"
@@ -512,6 +524,7 @@ export default function Transaction({ id }: { id: string }) {
             </div>
           </div>
         )}
+        <hr />
         {isConnected || paymentLink?.status === "paid" ? (
           paymentLink?.status === "paid" ? (
             <Button className="w-full" disabled variant="secondary">
@@ -519,6 +532,7 @@ export default function Transaction({ id }: { id: string }) {
             </Button>
           ) : (
             <Button
+              className="w-full"
               onClick={handlePay}
               disabled={
                 paying ||
@@ -536,18 +550,22 @@ export default function Transaction({ id }: { id: string }) {
                     : "Processing..."}
                 </span>
               ) : (
-                "Confirm Payment"
+                "Confirm Payment with Wallet"
               )}
             </Button>
           )
         ) : (
           <ConnectButtonCustom />
         )}
+        {paymentLink?.status === "active" && (
+          <p className="text-center text-muted-foreground">or</p>
+        )}
+
         {paymentLink?.status !== "paid" && (
           <Accordion type="single" collapsible>
             <AccordionItem value="item-1">
               <AccordionTrigger className="font-bold">
-                Pay with QR Code (optional)
+                Pay with QR Code
               </AccordionTrigger>
               <AccordionContent className="flex flex-col items-center gap-2">
                 {/* <QRCodeSVG value={qrValue || ""} /> */}
@@ -556,10 +574,15 @@ export default function Transaction({ id }: { id: string }) {
                   alt="QR Code"
                   width={200}
                   height={200}
+                  priority={true}
                 />
-                <span className="text-xs text-muted-foreground text-center">
-                  Scan this QR code with your wallet app to pay from your phone
-                </span>
+                <div className="text-xs text-muted-foreground text-center">
+                  <p>
+                    Scan this QR code with your wallet app to pay from your
+                    phone.
+                  </p>
+                  <p>Using the MetaMask wallet is highly recommended.</p>
+                </div>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
