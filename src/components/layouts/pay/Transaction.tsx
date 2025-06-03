@@ -45,14 +45,18 @@ import Image from "next/image";
 import useGetQRCode from "@/hooks/getQRCode";
 import { createPublicClient, http } from "viem";
 import { useRouter } from "next/navigation";
-import { liskSepolia } from "viem/chains";
+// import { liskSepolia } from "viem/chains";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  USDC_ABI,
+  USDC_TOKEN_ADDRESS_BASE_SEPOLIA,
+} from "@/config/UsdcContract";
 // Add a helper to get the public client for the current chain
 
 function getPublicClient(chainId?: number) {
   if (!chainId) return undefined;
   const rpcUrls: Record<number, string> = {
-    4202: liskSepolia.rpcUrls.default.http[0], // Lisk Sepolia RPC endpoint
+    // 4202: liskSepolia.rpcUrls.default.http[0], // Lisk Sepolia RPC endpoint
     84532: "https://sepolia.base.org", // Base Sepolia
   };
   const rpcUrl = rpcUrls[chainId];
@@ -67,20 +71,20 @@ const CHAIN_CONFIG: Record<
   number,
   {
     tokenContract: `0x${string}`;
-    transferContract: `0x${string}`;
+    // transferContract: `0x${string}`;
     explorer: string;
     name: string;
   }
 > = {
-  4202: {
-    tokenContract: IDRX_CONTRACT_ADDRESS as `0x${string}`,
-    transferContract: TransferContract as `0x${string}`,
-    explorer: "https://sepolia-blockscout.lisk.com",
-    name: "Lisk Sepolia",
-  },
+  // 4202: {
+  //   tokenContract: IDRX_CONTRACT_ADDRESS as `0x${string}`,
+  //   transferContract: TransferContract as `0x${string}`,
+  //   explorer: "https://sepolia-blockscout.lisk.com",
+  //   name: "Lisk Sepolia",
+  // },
   84532: {
-    tokenContract: IDRX_CONTRACT_ADDRESS_BASE as `0x${string}`,
-    transferContract: TransferContract_BASE as `0x${string}`,
+    tokenContract: USDC_TOKEN_ADDRESS_BASE_SEPOLIA as `0x${string}`,
+    // transferContract: TransferContract_BASE as `0x${string}`,
     explorer: "https://base-sepolia.blockscout.com",
     name: "Base Sepolia",
   },
@@ -114,29 +118,29 @@ export default function Transaction({ id }: { id: string }) {
   const [txError, setTxError] = useState<string | undefined>(undefined);
 
   const [tokenContract, setTokenContract] = useState<`0x${string}`>();
-  const [transferContract, setTransferContract] = useState<`0x${string}`>();
+  // const [transferContract, setTransferContract] = useState<`0x${string}`>();
   const [explorer, setExplorer] = useState<string>("");
 
   // Set contracts and explorer based on chain
   useEffect(() => {
     if (chain?.id && CHAIN_CONFIG[chain.id]) {
       setTokenContract(CHAIN_CONFIG[chain.id].tokenContract);
-      setTransferContract(CHAIN_CONFIG[chain.id].transferContract);
+      // setTransferContract(CHAIN_CONFIG[chain.id].transferContract);
       setExplorer(CHAIN_CONFIG[chain.id].explorer);
     } else {
       setTokenContract(undefined);
-      setTransferContract(undefined);
+      // setTransferContract(undefined);
       setExplorer("");
     }
   }, [chain]);
 
-  // Calculate payment processing fee
-  const paymentProcessingFee = paymentLink
-    ? (Number(paymentLink.amount) * 0.1) / 100
-    : 0;
-  const totalAmount = paymentLink
-    ? Number(paymentLink.amount) + paymentProcessingFee
-    : 0;
+  // // Calculate payment processing fee
+  // const paymentProcessingFee = paymentLink
+  //   ? (Number(paymentLink.amount) * 0.1) / 100
+  //   : 0;
+  // const totalAmount = paymentLink
+  //   ? Number(paymentLink.amount) + paymentProcessingFee
+  //   : 0;
 
   // Hooks for contract interaction (must not be called conditionally)
   const { writeContractAsync } = useWriteContract();
@@ -169,6 +173,9 @@ export default function Transaction({ id }: { id: string }) {
         .then(async (res) => {
           if (!res.ok) throw new Error("Failed to update payment link");
           toast.success("Payment status updated!");
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000); // 3000 ms = 3 detik
         })
         .catch((err) => {
           toast.error("Failed to update payment status: " + err.message);
@@ -257,7 +264,7 @@ export default function Transaction({ id }: { id: string }) {
               toast.error("Failed to update payment status: " + err.message);
             });
         }
-        console.log("Lisk logs:", logs);
+        // console.log("Lisk logs:", logs);
       } catch {
         // Optionally log error
       }
@@ -274,7 +281,7 @@ export default function Transaction({ id }: { id: string }) {
     tokenContract,
     paymentLink,
     chain,
-    totalAmount,
+    paymentLink?.amount,
     explorer,
     id,
     customerName,
@@ -287,7 +294,7 @@ export default function Transaction({ id }: { id: string }) {
       toast.error("Please enter your name before proceeding.");
       return;
     }
-    if (!tokenContract || !transferContract) {
+    if (!tokenContract) {
       toast.error("Unsupported network. Please switch to a supported network.");
       return;
     }
@@ -297,18 +304,20 @@ export default function Transaction({ id }: { id: string }) {
     try {
       await writeContractAsync({
         address: tokenContract,
-        abi: IDRX_CONTRACT_ABI,
+        abi: USDC_ABI,
         functionName: "approve",
-        args: [transferContract, parseUnits(totalAmount.toString(), 2)],
+        args: [
+          tokenContract,
+          parseUnits(Number(paymentLink?.amount).toString(), 18),
+        ],
       });
       const hash = await writeContractAsync({
-        address: transferContract,
-        abi: TransferContractABI,
-        functionName: "splitTransfer",
+        address: tokenContract,
+        abi: USDC_ABI,
+        functionName: "transfer",
         args: [
-          address,
           business?.address_wallet,
-          parseUnits(totalAmount.toString(), 2),
+          parseUnits(Number(paymentLink?.amount).toString(), 18),
         ],
       });
       setTxHash(hash as `0x${string}`);
@@ -402,14 +411,14 @@ export default function Transaction({ id }: { id: string }) {
             <p className="text-sm">From</p>
             {!paymentLink?.sender_address_wallet && (
               <p className="text-primary font-bold">
-                {address?.slice(0, 6)}...{address?.slice(-6)} (Your Wallet)
+                {address?.slice(0, 6)}...{address?.slice(-4)} (Your Wallet)
               </p>
             )}
           </div>
           {paymentLink?.sender_address_wallet && (
             <p className="text-primary font-bold">
               {paymentLink.sender_address_wallet?.slice(0, 6)}...
-              {paymentLink.sender_address_wallet?.slice(-6)} (Sender Wallet)
+              {paymentLink.sender_address_wallet?.slice(-4)} (Sender Wallet)
             </p>
           )}
 
@@ -417,14 +426,14 @@ export default function Transaction({ id }: { id: string }) {
             <p className="text-sm">To</p>
             <p className="text-primary font-bold">
               {business?.address_wallet?.slice(0, 6)}...
-              {business?.address_wallet?.slice(-6)} ({business?.nama || "-"})
+              {business?.address_wallet?.slice(-4)} ({business?.nama || "-"})
             </p>
           </div>
 
           <div>
             <p className="text-sm">Amount</p>
             <p className="text-primary font-bold flex items-center gap-1">
-              {totalAmount.toLocaleString()} IDRX{" "}
+              {Number(paymentLink?.amount).toLocaleString()} IDRX{" "}
               <Avatar className="size-6">
                 <AvatarImage src="/images/idrx.svg" />
                 <AvatarFallback>IDRX</AvatarFallback>
@@ -432,21 +441,6 @@ export default function Transaction({ id }: { id: string }) {
             </p>
           </div>
         </div>
-
-        {txError && <div className="text-destructive text-sm">{txError}</div>}
-        {txHash && (
-          <div className="text-xs break-all">
-            Tx Hash:{" "}
-            <a
-              href={explorer && txHash ? `${explorer}/tx/${txHash}` : "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 underline"
-            >
-              {txHash}
-            </a>
-          </div>
-        )}
 
         <hr />
 
@@ -489,6 +483,23 @@ export default function Transaction({ id }: { id: string }) {
         )}
         {receipt && (
           <div className="text-green-600 text-sm">Transaction confirmed!</div>
+        )}
+
+        {txError && <div className="text-destructive text-sm">{txError}</div>}
+        {txHash && (
+          <div className="text-xs break-all">
+            <p>Transaction Detail:</p>
+            <p>
+              <a
+                href={explorer && txHash ? `${explorer}/tx/${txHash}` : "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                {txHash}
+              </a>
+            </p>
+          </div>
         )}
         {paymentLink?.status === "paid" && (
           <div className="bg-green-100 border border-green-300 rounded-md p-3 mt-2">

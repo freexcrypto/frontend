@@ -1,8 +1,13 @@
 import PaymentForm from "@/components/PaymentForm";
 import { Button } from "@/components/ui/button";
-import { CreditCard, ScrollText, Plus, Link2 } from "lucide-react";
+import { CreditCard, ScrollText, Plus, Link2, Bot } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function BoxNavigation() {
   return (
@@ -10,29 +15,37 @@ export default function BoxNavigation() {
       <div className="border rounded-md p-5 space-y-5">
         <Link2 strokeWidth={2} size={30} />
         <div>
-          <h1 className="text-lg font-bold">Create a payment link</h1>
+          <h1 className="text-lg font-bold">Payment Link</h1>
           <p className="text-sm text-muted-foreground">
-            Receive crypto payments for anything
+            Receive crypto payments for anything you want with easier.
           </p>
         </div>
         <PaymentForm />
       </div>
       <div className="border rounded-md p-5 space-y-5">
-        <ScrollText strokeWidth={2} size={30} />
+        <Bot strokeWidth={2} size={30} />
         <div>
-          <h1 className="text-lg font-bold">Create an invoice</h1>
+          <h1 className="text-lg font-bold">Payment Assistants</h1>
           <p className="text-sm text-muted-foreground">
-            Create and send crypto invoices to your customers or clients
+            manage optimization and handle transactions with a powerful AI Agent
+            from Freex.
           </p>
         </div>
-        <Button size={"sm"} disabled>
-          <Plus /> Create invoice
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button size={"sm"}>
+              <Plus /> Chat Assistant
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>This feature is available soon</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
       <div className="border rounded-md p-5 space-y-5">
         <CreditCard strokeWidth={2} size={30} />
         <div>
-          <h1 className="text-lg font-bold">Integrate payments</h1>
+          <h1 className="text-lg font-bold">Payment Integration</h1>
           <p className="text-sm text-muted-foreground">
             Powered your app with crypto payments through a powerful API
           </p>
@@ -41,7 +54,7 @@ export default function BoxNavigation() {
           href="https://0xkayz.gitbook.io/freex/integrate-api-for-marketplace"
           target="_blank"
         >
-          <Button size={"sm"}>
+          <Button size={"sm"} className="cursor-pointer">
             <Plus /> Start integration
           </Button>
         </Link>

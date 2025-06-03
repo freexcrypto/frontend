@@ -13,6 +13,8 @@ export type PaymentLink = {
   transaction_hash: string;
   status: string;
   created_at: string;
+  chain_id: string;
+  chain_name: string;
 };
 
 export default function useGetPaymentLink(id: string) {

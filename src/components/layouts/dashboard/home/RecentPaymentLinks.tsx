@@ -11,6 +11,11 @@ import {
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import useGetAllPaymentLinks from "@/hooks/getAllPaymentLinks";
 import Link from "next/link";
@@ -30,7 +35,7 @@ export default function RecentPaymentLinks() {
             <TableHead>Status</TableHead>
             <TableHead>Title</TableHead>
             <TableHead>Description</TableHead>
-            <TableHead>Amount (IDRX)</TableHead>
+            <TableHead>Amount (USDC)</TableHead>
             <TableHead>Created At</TableHead>
             <TableHead>Link</TableHead>
           </TableRow>
@@ -49,8 +54,26 @@ export default function RecentPaymentLinks() {
                     {link.status}
                   </Badge>
                 </TableCell>
-                <TableCell>{link.title}</TableCell>
-                <TableCell>{link.description}</TableCell>
+                <TableCell>
+                  <Tooltip>
+                    <TooltipTrigger className="truncate max-w-60">
+                      {link.title}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{link.title}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TableCell>
+                <TableCell>
+                  <Tooltip>
+                    <TooltipTrigger className="truncate max-w-60">
+                      {link.description}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{link.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TableCell>
                 <TableCell>{link.amount}</TableCell>
                 <TableCell>{moment(link.created_at).format("LLLL")}</TableCell>
                 <TableCell>

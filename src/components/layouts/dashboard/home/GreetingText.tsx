@@ -8,7 +8,7 @@ export default function GreetingText() {
     <div>
       <h1 className="text-2xl font-bold">Welcome sir, {users?.fullname}</h1>
       <p className="text-xl">
-        Lets grow your <strong>{business?.nama} business</strong> with us.
+        Lets grow your <strong>{business?.nama}</strong> with freex.
       </p>
     </div>
   );

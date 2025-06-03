@@ -31,7 +31,7 @@ export default function RecentPayments() {
             <TableHead>Status</TableHead>
             <TableHead>Title</TableHead>
             <TableHead>Description</TableHead>
-            <TableHead>Amount (IDRX)</TableHead>
+            <TableHead>Amount (USDC)</TableHead>
             <TableHead>Sender</TableHead>
             <TableHead>Customer</TableHead>
             <TableHead>Transaction Hash</TableHead>

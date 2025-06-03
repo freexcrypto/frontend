@@ -17,25 +17,24 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuSub,
   DropdownMenuTrigger,
-  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { config } from "@/config/Web3Provider";
 import useGetBalance from "@/hooks/getBalance";
-import { Wallet } from "lucide-react";
-import { formatUnits } from "viem";
+import { EarthLock, User, Wallet } from "lucide-react";
 import React from "react";
+import { baseSepolia } from "viem/chains";
+import { formatUnits } from "viem";
 
 export const ConnectButtonCustom = () => {
   const { address, chain } = useAccount();
   const { connectors, connect } = useConnect();
   const { disconnect } = useDisconnect();
-  const { balanceNative, balanceIdrx } = useGetBalance();
+  const { balanceNative, balanceUSDC } = useGetBalance();
 
-  const [selectedChain, setSelectedChain] = React.useState<number | null>();
+  const [selectedChain, setSelectedChain] = React.useState<number | undefined>(
+    baseSepolia.id
+  );
 
   React.useEffect(() => {
     setSelectedChain(chain?.id);
@@ -45,13 +44,22 @@ export const ConnectButtonCustom = () => {
     config: config,
   });
 
+  React.useEffect(() => {
+    if (!chain?.id) {
+      switchChain({ chainId: baseSepolia.id });
+    }
+  }, [chain]);
+
   return (
     <div>
       {address ? (
         <div className="flex items-center gap-2">
           <Dialog>
             <DialogTrigger asChild>
-              <Button>{chain?.name}</Button>
+              <Button>
+                <EarthLock />
+                {chain?.name}
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -78,24 +86,12 @@ export const ConnectButtonCustom = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button>
-                {address.slice(0, 6)}...{address.slice(-4)}
+                <User /> {address.slice(0, 6)}...{address.slice(-4)}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Chain/Network</DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    {chains.map((chain) => (
-                      <DropdownMenuItem key={chain.id}>
-                        {chain.name}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
               <DropdownMenuItem>Profile</DropdownMenuItem>
               <DropdownMenuItem onClick={() => disconnect()}>
                 Disconnect
@@ -116,7 +112,7 @@ export const ConnectButtonCustom = () => {
               <DropdownMenuLabel>My Balance Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                {balanceIdrx ? formatUnits(balanceIdrx as bigint, 2) : 0}{" "}
+                {balanceUSDC ? formatUnits(balanceUSDC as bigint, 18) : "0"}
                 <strong>IDRX</strong>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -142,7 +138,10 @@ export const ConnectButtonCustom = () => {
                   className="flex items-center justify-start gap-2 w-full border p-3 rounded-md hover:bg-accent cursor-pointer duration-300"
                 >
                   <img
-                    src={connector.icon}
+                    src={
+                      connector.icon ||
+                      "https://cdn-icons-png.freepik.com/512/116/116369.png"
+                    }
                     alt={connector.name}
                     width={35}
                     height={35}

@@ -1,16 +1,15 @@
 "use client";
 
 import {
-  IDRX_CONTRACT_ABI,
-  IDRX_CONTRACT_ADDRESS,
-  IDRX_CONTRACT_ADDRESS_BASE,
-} from "@/config/IdrxContract";
+  USDC_ABI,
+  USDC_TOKEN_ADDRESS_BASE_SEPOLIA,
+} from "@/config/UsdcContract";
 import React from "react";
 import { useAccount, useReadContract } from "wagmi";
 
 const CHAIN_CONFIG: Record<number, { tokenContract: `0x${string}` }> = {
-  4202: { tokenContract: IDRX_CONTRACT_ADDRESS as `0x${string}` },
-  84532: { tokenContract: IDRX_CONTRACT_ADDRESS_BASE as `0x${string}` },
+  // 4202: { tokenContract: IDRX_CONTRACT_ADDRESS as `0x${string}` },
+  84532: { tokenContract: USDC_TOKEN_ADDRESS_BASE_SEPOLIA as `0x${string}` },
 };
 
 export default function useGetCompanyBalance(business_id: string | undefined) {
@@ -25,11 +24,11 @@ export default function useGetCompanyBalance(business_id: string | undefined) {
     }
   }, [chain]);
 
-  const { data: balanceIdrx } = useReadContract({
+  const { data: balanceUSDC } = useReadContract({
     address: tokenContract as `0x${string}`,
-    abi: IDRX_CONTRACT_ABI,
+    abi: USDC_ABI,
     functionName: "balanceOf",
     args: [business_id],
   });
-  return { balanceIdrx };
+  return { balanceUSDC };
 }

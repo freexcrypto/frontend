@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import useGetBusinessByUser from "@/hooks/getBusinessbyUser";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useAccount } from "wagmi";
 type PaymentFormProps = {
   title: string;
   description: string;
@@ -27,11 +28,10 @@ type PaymentFormProps = {
 };
 
 export default function PaymentForm() {
+  const { chain } = useAccount();
   const { business } = useGetBusinessByUser();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
-  const [usdValue, setUsdValue] = useState<number | null>(null);
   const formik = useFormik({
     initialValues: {
       title: "",
@@ -40,42 +40,14 @@ export default function PaymentForm() {
     },
     validationSchema: Yup.object({
       title: Yup.string().required("Title is required"),
-      description: Yup.string().required("Description is required"),
+      description: Yup.string(),
       amount: Yup.number()
         .required("Amount is required")
         .positive("Amount must be positive")
-        .min(10000, "Minimum amount is 10000 IDRX"),
+        .min(1, "Minimum amount is 1 USDC"),
     }),
     onSubmit: handleSubmit,
   });
-
-  // Fetch exchange rate on mount
-  useEffect(() => {
-    async function fetchRate() {
-      try {
-        const res = await fetch(
-          "https://api.exchangerate-api.com/v4/latest/IDR"
-        );
-        const data = await res.json();
-        setExchangeRate(data.rates.USD);
-      } catch {
-        setExchangeRate(null);
-      }
-    }
-    fetchRate();
-  }, []);
-
-  // Calculate IDR per USD
-  const idrPerUsd = exchangeRate ? 1 / exchangeRate : null;
-
-  // Update USD value when amount or rate changes
-  useEffect(() => {
-    if (exchangeRate && formik.values.amount > 0) {
-      setUsdValue(formik.values.amount * exchangeRate);
-    } else {
-      setUsdValue(null);
-    }
-  }, [formik.values.amount, exchangeRate]);
 
   async function handleSubmit(values: PaymentFormProps) {
     setLoading(true);
@@ -92,6 +64,8 @@ export default function PaymentForm() {
             title: values.title,
             description: values.description,
             amount: values.amount,
+            chain_id: chain?.id,
+            chain_name: chain?.name,
           }),
         }
       );
@@ -121,7 +95,7 @@ export default function PaymentForm() {
   return (
     <AlertDialog open={open} onOpenChange={handleDialogChange}>
       <AlertDialogTrigger asChild>
-        <Button size={"sm"}>
+        <Button size={"sm"} className="cursor-pointer">
           <Plus /> Create link
         </Button>
       </AlertDialogTrigger>
@@ -174,14 +148,14 @@ export default function PaymentForm() {
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="amount">Amount (IDRX)</Label>
-            <div className="flex items-center gap-2 max-w-60 relative">
+            <Label htmlFor="amount">Amount (USDC)</Label>
+            <div className="flex items-center gap-2 max-w-42 relative">
               <Input
                 id="amount"
                 name="amount"
-                type="number"
+                type="text"
                 min={1}
-                placeholder="example: 100"
+                placeholder="example: 1"
                 value={formik.values.amount === 0 ? "" : formik.values.amount}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -189,33 +163,22 @@ export default function PaymentForm() {
                 aria-describedby="amount-error"
               />
               <Avatar className="absolute right-0">
-                <AvatarImage src="/images/idrx.svg" />
+                <AvatarImage src="https://s3.coinmarketcap.com/static-gravity/image/5a8229787b5e4c809b5914eef709b59a.png" />
                 <AvatarFallback>IDRX</AvatarFallback>
               </Avatar>
             </div>
-            <span className="text-sm text-muted-foreground">
-              {idrPerUsd
-                ? `$1 = ${idrPerUsd.toLocaleString()} IDRX`
-                : "Loading rate..."}
+            <span className="text-muted-foreground text-sm">
+              1 USDC = 1 USD
             </span>
             {formik.touched.amount && formik.errors.amount && (
               <p id="amount-error" className="text-destructive text-sm">
                 {formik.errors.amount}
               </p>
             )}
+            <p className="">
+              Recieve USDC in <strong>{chain?.name} Network</strong>
+            </p>
           </div>
-          <section>
-            <h3 className="text-sm font-medium">
-              Recieve{" "}
-              <strong>
-                {" "}
-                {usdValue !== null
-                  ? ` $${usdValue.toLocaleString()}`
-                  : "$ 0"}{" "}
-                USD
-              </strong>
-            </h3>
-          </section>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
             <Button type="submit" disabled={loading}>

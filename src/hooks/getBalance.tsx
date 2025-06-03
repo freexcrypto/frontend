@@ -1,17 +1,17 @@
 "use client";
-
-import {
-  IDRX_CONTRACT_ABI,
-  IDRX_CONTRACT_ADDRESS,
-  IDRX_CONTRACT_ADDRESS_BASE,
-} from "@/config/IdrxContract";
 import { useAccount, useReadContract } from "wagmi";
 import React from "react";
 import { useBalance } from "wagmi";
+import {
+  USDC_ABI,
+  USDC_TOKEN_ADDRESS_BASE_SEPOLIA,
+} from "@/config/UsdcContract";
+import BalanceUser from "@/components/layouts/dashboard/home/BalanceUser";
+import { formatUnits } from "viem";
 
 const CHAIN_CONFIG: Record<number, { tokenContract: `0x${string}` }> = {
-  4202: { tokenContract: IDRX_CONTRACT_ADDRESS as `0x${string}` },
-  84532: { tokenContract: IDRX_CONTRACT_ADDRESS_BASE as `0x${string}` },
+  // 4202: { tokenContract: IDRX_CONTRACT_ADDRESS as `0x${string}` },
+  84532: { tokenContract: USDC_TOKEN_ADDRESS_BASE_SEPOLIA as `0x${string}` },
 };
 
 export default function useGetBalance() {
@@ -31,13 +31,13 @@ export default function useGetBalance() {
   });
 
   const {
-    data: balanceIdrx,
+    data: balanceUSDC,
     isLoading,
     refetch,
     error,
   } = useReadContract({
     address: tokenContract as `0x${string}`,
-    abi: IDRX_CONTRACT_ABI,
+    abi: USDC_ABI,
     functionName: "balanceOf",
     args: [address],
   });
@@ -49,7 +49,7 @@ export default function useGetBalance() {
 
   return {
     balanceNative: Number(balanceNative?.formatted).toFixed(5),
-    balanceIdrx,
+    balanceUSDC,
     isLoading,
     error,
   };

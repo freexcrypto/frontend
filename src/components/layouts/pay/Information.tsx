@@ -20,13 +20,6 @@ export default function Information({ id }: { id: string }) {
     loading: businessLoading,
   } = useGetBusinessbyID(paymentLink?.business_id);
 
-  const paymentProcessingFee = paymentLink
-    ? (Number(paymentLink.amount) * 0.1) / 100
-    : 0;
-  const totalAmount = paymentLink
-    ? Number(paymentLink.amount) + paymentProcessingFee
-    : 0;
-
   // Loading state: show spinner if paymentLink is loading or not yet available
   if (paymentLinkLoading || !paymentLink) {
     return (
@@ -113,32 +106,36 @@ export default function Information({ id }: { id: string }) {
           <div>
             <p className="text-muted-foreground">Amount</p>
             <span className="flex items-center gap-1 font-bold text-lg">
+              {Number(paymentLink?.amount).toLocaleString()} USDC
+              <Avatar className="size-6">
+                <AvatarImage src="https://s3.coinmarketcap.com/static-gravity/image/5a8229787b5e4c809b5914eef709b59a.png" />
+                <AvatarFallback>IDRX</AvatarFallback>
+              </Avatar>
+            </span>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Network</p>
+            <p className="text-lg">{paymentLink?.chain_name}</p>
+          </div>
+          {/* <div>
+            <p className="text-muted-foreground">Processing Fee (0.1%)</p>
+            <span className="flex items-center gap-1 font-bold text-lg">
               {Number(paymentLink?.amount).toLocaleString()} IDRX
               <Avatar className="size-6">
                 <AvatarImage src="/images/idrx.svg" />
                 <AvatarFallback>IDRX</AvatarFallback>
               </Avatar>
             </span>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Processing Fee (0.1%)</p>
-            <span className="flex items-center gap-1 font-bold text-lg">
-              {paymentProcessingFee.toLocaleString()} IDRX
-              <Avatar className="size-6">
-                <AvatarImage src="/images/idrx.svg" />
-                <AvatarFallback>IDRX</AvatarFallback>
-              </Avatar>
-            </span>
-          </div>
+          </div> */}
         </div>
       </div>
       <hr />
       <div className="flex justify-between items-center text-lg font-bold">
         <span>Total Payable</span>
         <span className="flex items-center gap-1 text-primary">
-          {totalAmount.toLocaleString()} IDRX
+          {Number(paymentLink?.amount).toLocaleString()} USDC
           <Avatar className="size-6">
-            <AvatarImage src="/images/idrx.svg" />
+            <AvatarImage src="https://s3.coinmarketcap.com/static-gravity/image/5a8229787b5e4c809b5914eef709b59a.png" />
             <AvatarFallback>IDRX</AvatarFallback>
           </Avatar>
         </span>

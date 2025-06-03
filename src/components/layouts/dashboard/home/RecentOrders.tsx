@@ -39,7 +39,7 @@ export default function RecentOrders() {
             <TableHead>ID Client</TableHead>
             <TableHead>Sender Wallet</TableHead>
             <TableHead>Items</TableHead>
-            <TableHead>Total Price (IDRX)</TableHead>
+            <TableHead>Total Price (USDC)</TableHead>
             <TableHead>Hash</TableHead>
             <TableHead>Expired At</TableHead>
             <TableHead>Created At</TableHead>
