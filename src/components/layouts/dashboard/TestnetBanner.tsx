@@ -1,13 +1,17 @@
 "use client";
 import { StickyBanner } from "@/components/ui/sticky-banner";
 import React from "react";
-import { liskSepolia, baseSepolia } from "viem/chains";
+import { arbitrumSepolia, baseSepolia, bscTestnet } from "viem/chains";
 import { useAccount } from "wagmi";
 
 export default function TestnetBanner() {
   const { chain } = useAccount();
 
-  if (chain?.id !== liskSepolia.id && chain?.id !== baseSepolia.id) {
+  if (
+    chain?.id !== bscTestnet.id &&
+    chain?.id !== arbitrumSepolia.id &&
+    chain?.id !== baseSepolia.id
+  ) {
     return null;
   }
 

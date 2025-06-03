@@ -7,6 +7,7 @@ import {
 } from "@/config/IdrxContract";
 import { useAccount, useReadContract } from "wagmi";
 import React from "react";
+import { useBalance } from "wagmi";
 
 const CHAIN_CONFIG: Record<number, { tokenContract: `0x${string}` }> = {
   4202: { tokenContract: IDRX_CONTRACT_ADDRESS as `0x${string}` },
@@ -25,6 +26,10 @@ export default function useGetBalance() {
     }
   }, [chain]);
 
+  const { data: balanceNative, refetch: refetchBalanceNative } = useBalance({
+    address: address,
+  });
+
   const {
     data: balanceIdrx,
     isLoading,
@@ -39,9 +44,13 @@ export default function useGetBalance() {
 
   React.useEffect(() => {
     refetch();
-  }, [refetch]);
+    refetchBalanceNative();
+  }, [refetch, refetchBalanceNative]);
 
-  console.log(balanceIdrx);
-
-  return { balanceIdrx, isLoading, error };
+  return {
+    balanceNative: Number(balanceNative?.formatted).toFixed(5),
+    balanceIdrx,
+    isLoading,
+    error,
+  };
 }

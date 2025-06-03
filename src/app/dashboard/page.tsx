@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useAccount, useSwitchChain } from "wagmi";
+import { useAccount } from "wagmi";
 import DisconnectPage from "@/components/layouts/DisconnectPage";
 import BoxNavigation from "@/components/layouts/dashboard/home/BoxNavigation";
 import BalanceUser from "@/components/layouts/dashboard/home/BalanceUser";
@@ -13,17 +13,11 @@ import useGetUsers from "@/hooks/getUsers";
 import useGetBusinessByUser from "@/hooks/getBusinessbyUser";
 import GreetingText from "@/components/layouts/dashboard/home/GreetingText";
 import RecentPaymentLinks from "@/components/layouts/dashboard/home/RecentPaymentLinks";
-import { liskSepolia } from "viem/chains";
 
 export default function Page() {
   const { address } = useAccount();
   const { users } = useGetUsers();
   const { business } = useGetBusinessByUser();
-  const { switchChain } = useSwitchChain();
-
-  React.useEffect(() => {
-    switchChain({ chainId: liskSepolia.id });
-  }, [switchChain]);
 
   if (!address) {
     return <DisconnectPage />;

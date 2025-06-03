@@ -1,20 +1,19 @@
 "use client";
 import React from "react";
-import { Config, WagmiProvider } from "wagmi";
+import { Config, http, createConfig, WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { XellarKitProvider, defaultConfig, darkTheme } from "@xellar/kit";
-import { baseSepolia, liskSepolia } from "viem/chains";
+import { metaMask } from "wagmi/connectors";
+import { bscTestnet, baseSepolia, arbitrumSepolia } from "viem/chains";
 
-export const config = defaultConfig({
-  appName: "cryptogateway",
-  // Required for WalletConnect
-  walletConnectProjectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
-
-  // Required for Xellar Passport
-  xellarAppId: process.env.NEXT_PUBLIC_XELLAR_APP_ID!,
-  xellarEnv: "sandbox",
-  chains: [liskSepolia, baseSepolia],
-  ssr: true, // Use this if you're using Next.js App Router
+export const config = createConfig({
+  ssr: true, // Make sure to enable this for server-side rendering (SSR) applications.
+  chains: [bscTestnet, baseSepolia, arbitrumSepolia],
+  connectors: [metaMask()],
+  transports: {
+    [baseSepolia.id]: http(),
+    [arbitrumSepolia.id]: http(),
+    [bscTestnet.id]: http(),
+  },
 }) as Config;
 
 const queryClient = new QueryClient();
@@ -22,9 +21,7 @@ const queryClient = new QueryClient();
 export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
   return (
     <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <XellarKitProvider theme={darkTheme}>{children}</XellarKitProvider>
-      </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>
   );
 };
