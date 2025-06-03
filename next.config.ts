@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
       {
         hostname: "gateway.pinata.cloud",
       },
+      {
+        hostname: "raw.githubusercontent.com",
+      },
     ],
     unoptimized: true,
   },

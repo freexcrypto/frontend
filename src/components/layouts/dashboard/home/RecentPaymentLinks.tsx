@@ -36,6 +36,7 @@ export default function RecentPaymentLinks() {
             <TableHead>Title</TableHead>
             <TableHead>Description</TableHead>
             <TableHead>Amount (USDC)</TableHead>
+            <TableHead>Recieve Network</TableHead>
             <TableHead>Created At</TableHead>
             <TableHead>Link</TableHead>
           </TableRow>
@@ -44,9 +45,7 @@ export default function RecentPaymentLinks() {
           {paymentLinks && paymentLinks.length > 0 ? (
             paymentLinks.map((link) => (
               <TableRow key={link.id}>
-                <TableCell className="font-medium">
-                  {link.id.slice(0, 6)}...{link.id.slice(-6)}
-                </TableCell>
+                <TableCell className="font-bold">{link.id.slice(-5)}</TableCell>
                 <TableCell>
                   <Badge
                     variant={link.status === "active" ? "default" : "secondary"}
@@ -75,6 +74,8 @@ export default function RecentPaymentLinks() {
                   </Tooltip>
                 </TableCell>
                 <TableCell>{link.amount}</TableCell>
+                <TableCell>{link.chain_name}</TableCell>
+
                 <TableCell>{moment(link.created_at).format("LLLL")}</TableCell>
                 <TableCell>
                   <Link href={link.payment_link} target="_blank">

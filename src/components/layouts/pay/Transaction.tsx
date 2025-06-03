@@ -15,18 +15,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2 } from "lucide-react";
-import {
-  IDRX_CONTRACT_ABI,
-  IDRX_CONTRACT_ADDRESS,
-  IDRX_CONTRACT_ADDRESS_BASE,
-} from "@/config/IdrxContract";
+// import {
+//   IDRX_CONTRACT_ABI,
+//   IDRX_CONTRACT_ADDRESS,
+//   IDRX_CONTRACT_ADDRESS_BASE,
+// } from "@/config/IdrxContract";
 import { parseUnits } from "viem";
 import Link from "next/link";
-import {
-  TransferContract_BASE,
-  TransferContractABI,
-} from "@/config/TransferContract";
-import { TransferContract } from "@/config/TransferContract";
+// import {
+//   TransferContract_BASE,
+//   TransferContractABI,
+// } from "@/config/TransferContract";
+// import { TransferContract } from "@/config/TransferContract";
 import { ConnectButtonCustom } from "@/components/ConnectButtonCustom";
 import {
   Select,
@@ -51,6 +51,7 @@ import {
   USDC_ABI,
   USDC_TOKEN_ADDRESS_BASE_SEPOLIA,
 } from "@/config/UsdcContract";
+import TokensList from "@/components/TokensList";
 // Add a helper to get the public client for the current chain
 
 function getPublicClient(chainId?: number) {
@@ -168,6 +169,7 @@ export default function Transaction({ id }: { id: string }) {
           transaction_hash:
             explorer && txHash ? `${explorer}/tx/${txHash}` : "", // Only the hash
           status: "paid",
+          sender_chain_name: chain?.name,
         }),
       })
         .then(async (res) => {
@@ -252,6 +254,7 @@ export default function Transaction({ id }: { id: string }) {
                   ? `${explorer}/tx/${l.transactionHash}`
                   : l.transactionHash,
               status: "paid",
+              sender_chain_name: chain?.name,
             }),
           })
             .then(async (res) => {
@@ -433,9 +436,9 @@ export default function Transaction({ id }: { id: string }) {
           <div>
             <p className="text-sm">Amount</p>
             <p className="text-primary font-bold flex items-center gap-1">
-              {Number(paymentLink?.amount).toLocaleString()} IDRX{" "}
+              {Number(paymentLink?.amount).toLocaleString()} USDC{" "}
               <Avatar className="size-6">
-                <AvatarImage src="/images/idrx.svg" />
+                <AvatarImage src="https://s3.coinmarketcap.com/static-gravity/image/5a8229787b5e4c809b5914eef709b59a.png" />
                 <AvatarFallback>IDRX</AvatarFallback>
               </Avatar>
             </p>
@@ -447,7 +450,7 @@ export default function Transaction({ id }: { id: string }) {
         {!paymentLink?.transaction_hash && (
           <>
             <div className="space-y-2">
-              <p className="text-sm">Network</p>
+              <p className="text-sm">Select Payment Network</p>
               <Select
                 onValueChange={(value) =>
                   switchChain({ chainId: Number(value) })
@@ -464,6 +467,7 @@ export default function Transaction({ id }: { id: string }) {
                   ))}
                 </SelectContent>
               </Select>
+              <TokensList />
             </div>
             <>
               {!isSupportedNetwork && (

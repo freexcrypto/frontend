@@ -73,7 +73,7 @@ export const ConnectButtonCustom = () => {
                     className={`text-start p-3 rounded-md cursor-pointer  ${
                       selectedChain === chain.id
                         ? "bg-primary text-primary-foreground"
-                        : ""
+                        : "border bg-accent hover:bg-primary/20 duration-300"
                     }`}
                   >
                     {chain.name}
@@ -113,7 +113,7 @@ export const ConnectButtonCustom = () => {
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 {balanceUSDC ? formatUnits(balanceUSDC as bigint, 18) : "0"}
-                <strong>IDRX</strong>
+                <strong>USDC</strong>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

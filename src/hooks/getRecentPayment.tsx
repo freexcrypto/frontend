@@ -14,6 +14,8 @@ export type PaymentLink = {
   status: string;
   created_at: string;
   updated_at: string;
+  chain_name: string;
+  sender_chain_name: string;
 };
 
 export default function useGetRecentPayment(business_id: string | undefined) {

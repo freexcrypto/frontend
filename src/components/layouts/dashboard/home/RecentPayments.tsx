@@ -32,7 +32,9 @@ export default function RecentPayments() {
             <TableHead>Title</TableHead>
             <TableHead>Description</TableHead>
             <TableHead>Amount (USDC)</TableHead>
-            <TableHead>Sender</TableHead>
+            <TableHead>Recieve Network</TableHead>
+            <TableHead>Sender Network</TableHead>
+            <TableHead>Sender Address</TableHead>
             <TableHead>Customer</TableHead>
             <TableHead>Transaction Hash</TableHead>
             <TableHead>Updated At</TableHead>
@@ -41,8 +43,8 @@ export default function RecentPayments() {
         <TableBody>
           {paymentLinks?.map((paymentLink) => (
             <TableRow key={paymentLink.id}>
-              <TableCell className="font-medium">
-                {paymentLink.id.slice(0, 6)}...{paymentLink.id.slice(-6)}
+              <TableCell className="font-bold">
+                {paymentLink.id.slice(-5)}
               </TableCell>
               <TableCell>
                 <Badge
@@ -59,6 +61,12 @@ export default function RecentPayments() {
               </TableCell>
               <TableCell className="font-medium">
                 {paymentLink.amount}
+              </TableCell>
+              <TableCell className="font-medium">
+                {paymentLink.chain_name}
+              </TableCell>
+              <TableCell className="font-medium">
+                {paymentLink.sender_chain_name || "-"}
               </TableCell>
               <TableCell className="font-medium">
                 {paymentLink.sender_address_wallet?.slice(0, 4)}...
