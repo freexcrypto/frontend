@@ -2,7 +2,6 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NumberTicker } from "@/components/magicui/number-ticker";
-import useGetBalance from "@/hooks/getBalance";
 import { formatUnits } from "viem";
 import useGetBusinessByUser from "@/hooks/getBusinessbyUser";
 import useGetRecentPayment from "@/hooks/getRecentPayment";

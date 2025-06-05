@@ -21,6 +21,8 @@ import useGetBusinessByUser from "@/hooks/getBusinessbyUser";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useAccount } from "wagmi";
+import { useGetReceiveToken } from "@/hooks/getRecieveToken";
+
 type PaymentFormProps = {
   title: string;
   description: string;
@@ -30,6 +32,9 @@ type PaymentFormProps = {
 export default function PaymentForm() {
   const { chain } = useAccount();
   const { business } = useGetBusinessByUser();
+  const { receiveToken } = useGetReceiveToken();
+  console.log(receiveToken);
+
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const formik = useFormik({
@@ -66,6 +71,7 @@ export default function PaymentForm() {
             amount: values.amount,
             chain_id: chain?.id,
             chain_name: chain?.name,
+            recieve_token: receiveToken?.address,
           }),
         }
       );

@@ -1,14 +1,15 @@
 "use client";
+
 import React from "react";
 
-type TokensType = {
-  chainId: number;
+export type TokensType = {
+  chainId?: number;
   address: string;
   symbol: string;
   name: string;
-  decimals: string;
+  decimals: number;
   priceUSD: string;
-  coinKey: string;
+  coinKey?: string;
   logoURI: string;
 };
 
@@ -19,23 +20,32 @@ export default function useGetTokens(chain_id: string | undefined) {
 
   React.useEffect(() => {
     if (!chain_id) return;
+
     const fetchTokens = async () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `https://li.quest/v1/tokens?chains=${chain_id}`,
+          `https://li.quest/v1/tokens?chains=${chain_id}&minPriceUSD=0.9`,
           {
             cache: "no-store",
           }
         );
         const data = await response.json();
-        setTokens(data?.tokens?.chain_id);
+
+        const tokensForChain = data?.tokens?.[chain_id];
+        if (tokensForChain) {
+          setTokens(tokensForChain);
+        } else {
+          setTokens(null);
+        }
+
         setLoading(false);
       } catch (error) {
         setError(error as Error);
         setLoading(false);
       }
     };
+
     fetchTokens();
   }, [chain_id]);
 

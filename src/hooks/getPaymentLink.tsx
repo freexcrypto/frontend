@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-export type PaymentLink = {
+export type PaymentLinkType = {
   id: string;
   business_id: string;
   title: string;
@@ -15,10 +15,11 @@ export type PaymentLink = {
   created_at: string;
   chain_id: string;
   chain_name: string;
+  recieve_token: string;
 };
 
 export default function useGetPaymentLink(id: string) {
-  const [paymentLink, setPaymentLink] = React.useState<PaymentLink | null>(
+  const [paymentLink, setPaymentLink] = React.useState<PaymentLinkType | null>(
     null
   );
   const [loading, setLoading] = React.useState(false);

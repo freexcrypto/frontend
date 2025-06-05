@@ -1,5 +1,6 @@
 import Information from "@/components/layouts/pay/Information";
-import Transaction from "@/components/layouts/pay/Transaction";
+import Payment from "@/components/layouts/pay/Payment";
+// import Transaction from "@/components/layouts/pay/Transaction";
 import React from "react";
 
 export default async function page({
@@ -13,8 +14,11 @@ export default async function page({
       <div className="col-span-1">
         <Information id={id} />
       </div>
-      <div className="col-span-1">
+      {/* <div className="col-span-1">
         <Transaction id={id} />
+      </div> */}
+      <div>
+        <Payment id={id} />
       </div>
     </main>
   );

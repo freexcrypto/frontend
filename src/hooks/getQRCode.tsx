@@ -4,7 +4,8 @@ import React from "react";
 export default function useGetQRCode(
   id: string,
   businessId: string,
-  chainId: string
+  chainId: string,
+  contractAddress: string | undefined
 ) {
   const [qrCode, setQRCode] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
@@ -15,7 +16,7 @@ export default function useGetQRCode(
       try {
         setLoading(true);
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/payment-link/qr/${id}/${businessId}/${chainId}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/payment-link/qr/${id}/${businessId}/${chainId}/${contractAddress}`,
           {
             cache: "no-store",
           }
@@ -29,7 +30,7 @@ export default function useGetQRCode(
       }
     };
     fetchBusiness();
-  }, [id, businessId, chainId]);
+  }, [id, businessId, chainId, contractAddress]);
 
   return { qrCode, loading, error };
 }

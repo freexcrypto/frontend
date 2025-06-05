@@ -5,9 +5,7 @@ import useGetBusinessbyID from "@/hooks/getBusinessbyID";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
-  // injected,
   useAccount,
-  // useConnect,
   useSwitchChain,
   useWaitForTransactionReceipt,
   useWriteContract,
@@ -15,18 +13,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2 } from "lucide-react";
-// import {
-//   IDRX_CONTRACT_ABI,
-//   IDRX_CONTRACT_ADDRESS,
-//   IDRX_CONTRACT_ADDRESS_BASE,
-// } from "@/config/IdrxContract";
 import { parseUnits } from "viem";
 import Link from "next/link";
-// import {
-//   TransferContract_BASE,
-//   TransferContractABI,
-// } from "@/config/TransferContract";
-// import { TransferContract } from "@/config/TransferContract";
+
 import { ConnectButtonCustom } from "@/components/ConnectButtonCustom";
 import {
   Select,
@@ -77,15 +66,8 @@ const CHAIN_CONFIG: Record<
     name: string;
   }
 > = {
-  // 4202: {
-  //   tokenContract: IDRX_CONTRACT_ADDRESS as `0x${string}`,
-  //   transferContract: TransferContract as `0x${string}`,
-  //   explorer: "https://sepolia-blockscout.lisk.com",
-  //   name: "Lisk Sepolia",
-  // },
   84532: {
     tokenContract: USDC_TOKEN_ADDRESS_BASE_SEPOLIA as `0x${string}`,
-    // transferContract: TransferContract_BASE as `0x${string}`,
     explorer: "https://base-sepolia.blockscout.com",
     name: "Base Sepolia",
   },
@@ -106,12 +88,6 @@ export default function Transaction({ id }: { id: string }) {
     error: businessError,
   } = useGetBusinessbyID(paymentLink?.business_id || "");
 
-  const { qrCode } = useGetQRCode(
-    id,
-    paymentLink?.business_id || "",
-    String(chain?.id)
-  );
-
   // State for customer name input
   const [customerName, setCustomerName] = useState("");
   const [paying, setPaying] = useState(false);
@@ -119,29 +95,25 @@ export default function Transaction({ id }: { id: string }) {
   const [txError, setTxError] = useState<string | undefined>(undefined);
 
   const [tokenContract, setTokenContract] = useState<`0x${string}`>();
-  // const [transferContract, setTransferContract] = useState<`0x${string}`>();
   const [explorer, setExplorer] = useState<string>("");
 
   // Set contracts and explorer based on chain
   useEffect(() => {
     if (chain?.id && CHAIN_CONFIG[chain.id]) {
       setTokenContract(CHAIN_CONFIG[chain.id].tokenContract);
-      // setTransferContract(CHAIN_CONFIG[chain.id].transferContract);
       setExplorer(CHAIN_CONFIG[chain.id].explorer);
     } else {
       setTokenContract(undefined);
-      // setTransferContract(undefined);
       setExplorer("");
     }
   }, [chain]);
 
-  // // Calculate payment processing fee
-  // const paymentProcessingFee = paymentLink
-  //   ? (Number(paymentLink.amount) * 0.1) / 100
-  //   : 0;
-  // const totalAmount = paymentLink
-  //   ? Number(paymentLink.amount) + paymentProcessingFee
-  //   : 0;
+  const { qrCode } = useGetQRCode(
+    id,
+    paymentLink?.business_id || "",
+    String(chain?.id),
+    tokenContract
+  );
 
   // Hooks for contract interaction (must not be called conditionally)
   const { writeContractAsync } = useWriteContract();
@@ -184,7 +156,7 @@ export default function Transaction({ id }: { id: string }) {
         });
     }
     if (!receipt) hasUpdatedDb.current = false;
-  }, [receipt, txHash, id, address, customerName, explorer]);
+  }, [receipt, txHash, id, address, customerName, explorer, chain?.name]);
 
   const router = useRouter();
 
@@ -233,7 +205,7 @@ export default function Transaction({ id }: { id: string }) {
         // Find a log with the correct value
         const match = logs.find((log: unknown) => {
           const l = log as { args: { value: bigint } };
-          return l.args.value === parseUnits(paymentLink.amount.toString(), 2);
+          return l.args.value === parseUnits(paymentLink.amount.toString(), 18);
         });
         if (match && !stopped) {
           const l = match as {
@@ -450,7 +422,7 @@ export default function Transaction({ id }: { id: string }) {
         {!paymentLink?.transaction_hash && (
           <>
             <div className="space-y-2">
-              <p className="text-sm">Select Payment Network</p>
+              <p className="text-sm">Select Network Payment</p>
               <Select
                 onValueChange={(value) =>
                   switchChain({ chainId: Number(value) })
@@ -467,7 +439,10 @@ export default function Transaction({ id }: { id: string }) {
                   ))}
                 </SelectContent>
               </Select>
-              <TokensList />
+              <div className="space-y-1">
+                <p className="text-sm">Select Crypto Payment</p>
+                <TokensList />
+              </div>
             </div>
             <>
               {!isSupportedNetwork && (

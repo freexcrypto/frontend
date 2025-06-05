@@ -3,24 +3,17 @@ import React from "react";
 import { Config, http, createConfig, WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { metaMask } from "wagmi/connectors";
-import {
-  sepolia,
-  baseSepolia,
-  arbitrumSepolia,
-  avalanche,
-  base,
-} from "viem/chains";
+import { baseSepolia, arbitrumSepolia, base, arbitrum } from "viem/chains";
 
 export const config = createConfig({
   ssr: true, // Make sure to enable this for server-side rendering (SSR) applications.
-  chains: [sepolia, baseSepolia, arbitrumSepolia, avalanche, base],
+  chains: [baseSepolia, arbitrumSepolia, base, arbitrum],
   connectors: [metaMask()],
   transports: {
-    [sepolia.id]: http(),
     [baseSepolia.id]: http(),
     [arbitrumSepolia.id]: http(),
-    [avalanche.id]: http(),
     [base.id]: http(),
+    [arbitrum.id]: http(),
   },
 }) as Config;
 

@@ -48,7 +48,7 @@ export const ConnectButtonCustom = () => {
     if (!chain?.id) {
       switchChain({ chainId: baseSepolia.id });
     }
-  }, [chain]);
+  }, [chain, switchChain]);
 
   return (
     <div>
