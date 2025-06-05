@@ -29,17 +29,6 @@ export default function Review({
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <Label className="text-muted-foreground">Amount Payment</Label>
-        <p>
-          {formatUnits(
-            BigInt(quote.estimate.toAmountMin),
-            Number(quote.action.toToken.decimals)
-          )}{" "}
-          {quote.action.toToken.symbol}
-        </p>
-      </div>
-
       {(quote.estimate.fromAmountUSD || quote.estimate.toAmountUSD) && (
         <div className="flex items-center justify-between">
           <Label className="text-muted-foreground">Estimated USD Value</Label>
@@ -74,6 +63,17 @@ export default function Review({
       <div className="flex items-center justify-between">
         <Label className="text-muted-foreground">Estimated Duration</Label>
         <p>{quote.estimate.executionDuration} sec</p>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <Label className="font-bold">Total Amount Payment</Label>
+        <p className="font-bold">
+          {formatUnits(
+            BigInt(quote.estimate.toAmountMin),
+            Number(quote.action.toToken.decimals)
+          )}{" "}
+          {quote.action.toToken.symbol}
+        </p>
       </div>
     </section>
   );

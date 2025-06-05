@@ -131,7 +131,7 @@ export default function Information({ id }: { id: string }) {
       </div>
       <hr />
       <div className="flex justify-between items-center text-lg font-bold">
-        <span>Total Payable</span>
+        <span>Total Amount</span>
         <span className="flex items-center gap-1 text-primary">
           {Number(paymentLink?.amount).toLocaleString()} USDC
           <Avatar className="size-6">

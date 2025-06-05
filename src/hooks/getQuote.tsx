@@ -170,7 +170,15 @@ export default function useGetQuote({
       }
     };
 
+    // Jalankan pertama kali langsung
     fetchQuote();
+
+    // const interval = setInterval(() => {
+    //   fetchQuote();
+    // }, 3000);
+
+    // // Cleanup interval saat dependency berubah atau unmount
+    // return () => clearInterval(interval);
   }, [
     fromChain,
     toChain,

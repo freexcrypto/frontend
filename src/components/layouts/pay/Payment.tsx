@@ -1,7 +1,6 @@
 "use client";
-
 import React from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useWalletClient } from "wagmi";
 import NetworkList from "@/components/NetworkList";
 import TokensList from "@/components/TokensList";
 import { Input } from "@/components/ui/input";
@@ -15,9 +14,12 @@ import { useGetReceiveToken } from "@/hooks/getRecieveToken";
 import useGetQuote from "@/hooks/getQuote";
 import { parseUnits } from "viem";
 import Review from "./Review";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function Payment({ id }: { id: string }) {
   const { address, chain } = useAccount();
+  const { data: walletClient, isLoading, failureReason } = useWalletClient();
 
   const chainId = String(chain?.id ?? "");
   const { tokens, loading } = useGetTokens(chainId);
@@ -30,6 +32,8 @@ export default function Payment({ id }: { id: string }) {
   const [selectedToken, setSelectedToken] = React.useState<TokensType | null>(
     null
   );
+
+  const [isSending, setIsSending] = React.useState(false);
 
   const {
     quote,
@@ -50,6 +54,8 @@ export default function Payment({ id }: { id: string }) {
           ).toString()
         : "0",
   });
+
+  console.log(quote?.transactionRequest);
 
   // Auto-select token based on network
   React.useEffect(() => {
@@ -89,6 +95,24 @@ export default function Payment({ id }: { id: string }) {
         <p className="text-red-500 text-sm">Failed to load payment data.</p>
       </section>
     );
+  }
+
+  async function confirmPayment() {
+    if (!walletClient || !quote?.transactionRequest) return;
+
+    try {
+      const txHash = await walletClient.sendTransaction({
+        to: quote?.transactionRequest?.to as `0x${string}`,
+        data: quote?.transactionRequest?.data as `0x${string}`,
+        value: BigInt(quote?.transactionRequest?.value || "0"),
+        gas: BigInt(quote?.transactionRequest?.gasPrice || "0"),
+      });
+      console.log("Transaction Hash:", txHash);
+    } catch (err) {
+      console.error("Error sending transaction", err);
+      toast.error(`Payment failed`);
+    }
+    setIsSending(false);
   }
 
   return (
@@ -134,6 +158,18 @@ export default function Payment({ id }: { id: string }) {
         isLoadingQuote={isLoadingQuote}
         isErrorQuote={isErrorQuote}
       />
+
+      {!isLoadingQuote && !isErrorQuote && (
+        <Button
+          className="w-full"
+          disabled={!!isErrorQuote || isSending || isLoading}
+          onClick={confirmPayment}
+        >
+          {isSending
+            ? "Sending..."
+            : `Confirm Payment with ${selectedToken?.symbol}`}
+        </Button>
+      )}
     </section>
   );
 }
