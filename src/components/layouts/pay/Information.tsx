@@ -106,7 +106,7 @@ export default function Information({ id }: { id: string }) {
           <div>
             <p className="text-muted-foreground">Amount</p>
             <span className="flex items-center gap-1 font-bold text-lg">
-              {Number(paymentLink?.amount).toLocaleString()} USDC
+              {Number(paymentLink?.amount)} USDC
               <Avatar className="size-6">
                 <AvatarImage src="https://s3.coinmarketcap.com/static-gravity/image/5a8229787b5e4c809b5914eef709b59a.png" />
                 <AvatarFallback>IDRX</AvatarFallback>
@@ -133,7 +133,7 @@ export default function Information({ id }: { id: string }) {
       <div className="flex justify-between items-center text-lg font-bold">
         <span>Total Amount</span>
         <span className="flex items-center gap-1 text-primary">
-          {Number(paymentLink?.amount).toLocaleString()} USDC
+          {Number(paymentLink?.amount)} USDC
           <Avatar className="size-6">
             <AvatarImage src="https://s3.coinmarketcap.com/static-gravity/image/5a8229787b5e4c809b5914eef709b59a.png" />
             <AvatarFallback>IDRX</AvatarFallback>

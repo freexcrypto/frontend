@@ -46,10 +46,12 @@ export default function PaymentForm() {
     validationSchema: Yup.object({
       title: Yup.string().required("Title is required"),
       description: Yup.string(),
-      amount: Yup.number()
+      amount: Yup.string()
         .required("Amount is required")
-        .positive("Amount must be positive")
-        .min(1, "Minimum amount is 1 USDC"),
+        .matches(
+          /^\d{1,3}(,\d{3})*(\.\d{0,6})?$|^\d+(\.\d{0,6})?$/,
+          "Invalid amount format (max 6 decimal places)"
+        ),
     }),
     onSubmit: handleSubmit,
   });
@@ -163,7 +165,18 @@ export default function PaymentForm() {
                 min={1}
                 placeholder="example: 1"
                 value={formik.values.amount === 0 ? "" : formik.values.amount}
-                onChange={formik.handleChange}
+                onChange={(e) => {
+                  const rawValue = e.target.value.replace(/,/g, "");
+                  if (/^\d*\.?\d*$/.test(rawValue)) {
+                    const parts = rawValue.split(".");
+                    if (parts[1] && parts[1].length > 2) return;
+
+                    const formatted =
+                      Number(parts[0]).toLocaleString() +
+                      (parts[1] ? "." + parts[1] : "");
+                    formik.setFieldValue("amount", formatted);
+                  }
+                }}
                 onBlur={formik.handleBlur}
                 aria-invalid={!!(formik.touched.amount && formik.errors.amount)}
                 aria-describedby="amount-error"

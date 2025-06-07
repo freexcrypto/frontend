@@ -19,7 +19,7 @@ import { toast } from "sonner";
 
 export default function Payment({ id }: { id: string }) {
   const { address, chain } = useAccount();
-  const { data: walletClient, isLoading, failureReason } = useWalletClient();
+  const { data: walletClient, isLoading } = useWalletClient();
 
   const chainId = String(chain?.id ?? "");
   const { tokens, loading } = useGetTokens(chainId);
@@ -55,8 +55,6 @@ export default function Payment({ id }: { id: string }) {
         : "0",
   });
 
-  console.log(quote?.transactionRequest);
-
   // Auto-select token based on network
   React.useEffect(() => {
     if (!chain?.id) return;
@@ -89,13 +87,13 @@ export default function Payment({ id }: { id: string }) {
     </div>
   );
 
-  if (!paymentLink || !business) {
-    return (
-      <section className="border p-5 rounded-md shadow">
-        <p className="text-red-500 text-sm">Failed to load payment data.</p>
-      </section>
-    );
-  }
+  // if (!paymentLink || !business) {
+  //   return (
+  //     <section className="border p-5 rounded-md shadow">
+  //       <p className="text-red-500 text-sm">Failed to load payment data.</p>
+  //     </section>
+  //   );
+  // }
 
   async function confirmPayment() {
     if (!walletClient || !quote?.transactionRequest) return;
