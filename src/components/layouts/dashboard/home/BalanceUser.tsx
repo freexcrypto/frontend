@@ -10,9 +10,8 @@ import useGetOrderbyBusinessId from "@/hooks/getOrderbyBusinessId";
 export default function BalanceUser() {
   const { business } = useGetBusinessByUser();
   const { paymentLinks } = useGetRecentPayment(business?.id);
-  const { balanceUSDC: companyBalanceUSDC } = useGetCompanyBalance(
-    business?.address_wallet
-  );
+  const { balanceUSDC: companyBalanceUSDC, decimalsUSDC } =
+    useGetCompanyBalance(business?.address_wallet);
 
   const { order } = useGetOrderbyBusinessId(business?.id);
 
@@ -49,7 +48,12 @@ export default function BalanceUser() {
           <NumberTicker
             value={
               companyBalanceUSDC
-                ? parseFloat(formatUnits(companyBalanceUSDC as bigint, 18))
+                ? parseFloat(
+                    formatUnits(
+                      companyBalanceUSDC as bigint,
+                      Number(decimalsUSDC)
+                    )
+                  )
                 : 0
             }
             className="whitespace-pre-wrap text-5xl font-medium tracking-tighter text-black dark:text-white"

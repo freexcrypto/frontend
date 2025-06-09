@@ -13,6 +13,16 @@ export type TokensType = {
   logoURI: string;
 };
 
+const STABLECOIN_SYMBOLS = [
+  "USDC",
+  "USDT",
+  "DAI",
+  "FRAX",
+  "TUSD",
+  "USDP",
+  "GUSD",
+];
+
 export default function useGetTokens(chain_id: string | undefined) {
   const [tokens, setTokens] = React.useState<TokensType[] | null>(null);
   const [loading, setLoading] = React.useState(false);
@@ -33,8 +43,12 @@ export default function useGetTokens(chain_id: string | undefined) {
         const data = await response.json();
 
         const tokensForChain = data?.tokens?.[chain_id];
+
         if (tokensForChain) {
-          setTokens(tokensForChain);
+          const stablecoins = tokensForChain.filter((token: TokensType) =>
+            STABLECOIN_SYMBOLS.includes(token.symbol.toUpperCase())
+          );
+          setTokens(stablecoins);
         } else {
           setTokens(null);
         }

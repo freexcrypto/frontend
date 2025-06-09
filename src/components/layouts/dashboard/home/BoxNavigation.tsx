@@ -1,6 +1,6 @@
 import PaymentForm from "@/components/PaymentForm";
 import { Button } from "@/components/ui/button";
-import { CreditCard, ScrollText, Plus, Link2, Bot } from "lucide-react";
+import { CreditCard, Plus, Link2, Bot } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import {

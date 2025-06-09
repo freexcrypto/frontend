@@ -30,7 +30,7 @@ export const ConnectButtonCustom = () => {
   const { address, chain } = useAccount();
   const { connectors, connect } = useConnect();
   const { disconnect } = useDisconnect();
-  const { balanceNative, balanceUSDC } = useGetBalance();
+  const { balanceNative, balanceUSDC, decimalsUSDC } = useGetBalance();
 
   const [selectedChain, setSelectedChain] = React.useState<number | undefined>(
     baseSepolia.id
@@ -112,7 +112,9 @@ export const ConnectButtonCustom = () => {
               <DropdownMenuLabel>My Balance Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                {balanceUSDC ? formatUnits(balanceUSDC as bigint, 18) : "0"}
+                {balanceUSDC
+                  ? formatUnits(balanceUSDC as bigint, Number(decimalsUSDC))
+                  : "0"}
                 <strong>USDC</strong>
               </DropdownMenuItem>
             </DropdownMenuContent>
