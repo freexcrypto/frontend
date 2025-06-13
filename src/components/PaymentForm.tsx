@@ -33,7 +33,6 @@ export default function PaymentForm() {
   const { chain } = useAccount();
   const { business } = useGetBusinessByUser();
   const { receiveToken } = useGetReceiveToken();
-  console.log(receiveToken);
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);

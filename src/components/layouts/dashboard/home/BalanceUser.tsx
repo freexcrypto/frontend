@@ -34,6 +34,7 @@ export default function BalanceUser() {
         <div className="flex items-center gap-2">
           <NumberTicker
             value={totalPayment + totalOrder}
+            decimalPlaces={Number(decimalsUSDC)}
             className="whitespace-pre-wrap text-5xl font-medium tracking-tighter text-black dark:text-white"
           />
           <Avatar>
@@ -56,6 +57,7 @@ export default function BalanceUser() {
                   )
                 : 0
             }
+            decimalPlaces={Number(decimalsUSDC)}
             className="whitespace-pre-wrap text-5xl font-medium tracking-tighter text-black dark:text-white"
           />
           <Avatar>
@@ -64,23 +66,6 @@ export default function BalanceUser() {
           </Avatar>
         </div>
       </section>
-      {/* <section>
-        <h1 className="text-lg font-bold">IDRX user balance</h1>
-        <div className="flex items-center gap-2">
-          <NumberTicker
-            value={
-              balanceIdrx
-                ? parseFloat(formatUnits(balanceIdrx as bigint, 2))
-                : 0
-            }
-            className="whitespace-pre-wrap text-5xl font-medium tracking-tighter text-black dark:text-white"
-          />
-          <Avatar>
-            <AvatarImage src="/images/idrx.svg" />
-            <AvatarFallback>IDRX</AvatarFallback>
-          </Avatar>
-        </div>
-      </section> */}
     </div>
   );
 }

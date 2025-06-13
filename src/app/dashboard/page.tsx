@@ -13,6 +13,7 @@ import useGetUsers from "@/hooks/getUsers";
 import useGetBusinessByUser from "@/hooks/getBusinessbyUser";
 import GreetingText from "@/components/layouts/dashboard/home/GreetingText";
 import RecentPaymentLinks from "@/components/layouts/dashboard/home/RecentPaymentLinks";
+import Rebalancing from "../../components/Rebalancing";
 
 export default function Page() {
   const { address } = useAccount();
@@ -34,6 +35,7 @@ export default function Page() {
         <BoxNavigation />
         <GreetingText />
         <BalanceUser />
+        <Rebalancing />
         <ChartBalance />
         <RecentPaymentLinks />
         <RecentPayments />

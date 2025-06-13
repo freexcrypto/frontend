@@ -104,6 +104,8 @@ export default function Payment({ id }: { id: string }) {
   );
   const [isSending, setIsSending] = React.useState(false);
 
+  console.log(selectedToken?.address);
+
   const {
     quote,
     loading: isLoadingQuote,
@@ -410,6 +412,9 @@ export default function Payment({ id }: { id: string }) {
       setIsSending(false);
     }
   }
+  const insufficientBalance =
+    Number(quote?.estimate.toAmountUSD) >
+    Number(formatUnits((balanceUSDC as bigint) ?? "0", Number(decimalsUSDC)));
 
   return (
     <section className="col-span-1 space-y-5 border p-5 rounded-md shadow bg-white">
@@ -518,7 +523,11 @@ export default function Payment({ id }: { id: string }) {
                   <Button
                     className="w-full h-12 text-base font-medium"
                     disabled={
-                      !!isErrorQuote || isSending || isLoading || !customerName
+                      !!isErrorQuote ||
+                      isSending ||
+                      isLoading ||
+                      !customerName ||
+                      insufficientBalance
                     }
                     onClick={confirmPayment}
                   >
@@ -527,6 +536,8 @@ export default function Payment({ id }: { id: string }) {
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         Processing...
                       </div>
+                    ) : insufficientBalance ? (
+                      `Insufficient Balance ${selectedToken?.symbol}`
                     ) : (
                       `Confirm Payment with ${selectedToken?.symbol}`
                     )}
@@ -540,13 +551,7 @@ export default function Payment({ id }: { id: string }) {
                       isConfirming ||
                       isConfirmed ||
                       !customerName ||
-                      Number(paymentLink.amount) >
-                        Number(
-                          formatUnits(
-                            balanceUSDC as bigint,
-                            Number(decimalsUSDC)
-                          )
-                        )
+                      insufficientBalance
                     }
                     onClick={confirmPaymentSameToken}
                   >
@@ -555,6 +560,8 @@ export default function Payment({ id }: { id: string }) {
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         Processing...
                       </div>
+                    ) : insufficientBalance ? (
+                      `Insufficient Balance ${selectedToken?.symbol}`
                     ) : (
                       `Confirm Payment with ${selectedToken?.symbol}`
                     )}
