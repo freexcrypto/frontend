@@ -8,6 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Chat } from "../Chat";
 
 export default function BoxNavigation() {
   return (
@@ -31,7 +32,7 @@ export default function BoxNavigation() {
             from Freex.
           </p>
         </div>
-        <Tooltip>
+        {/* <Tooltip>
           <TooltipTrigger asChild>
             <Button size={"sm"}>
               <Plus /> Chat Assistant
@@ -40,7 +41,8 @@ export default function BoxNavigation() {
           <TooltipContent>
             <p>This feature is available soon</p>
           </TooltipContent>
-        </Tooltip>
+        </Tooltip> */}
+        <Chat />
       </div>
       <div className="border rounded-md p-5 space-y-5">
         <CreditCard strokeWidth={2} size={30} />

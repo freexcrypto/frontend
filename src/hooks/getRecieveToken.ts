@@ -13,7 +13,7 @@ export type ReceiveTokenType = {
 const logoUSDC =
   "https://s3.coinmarketcap.com/static-gravity/image/5a8229787b5e4c809b5914eef709b59a.png";
 
-const TOKEN_MAP: Record<number, ReceiveTokenType> = {
+export const TOKEN_MAP: Record<number, ReceiveTokenType> = {
   [base.id]: {
     name: "USDC",
     symbol: "USDC",
