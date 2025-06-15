@@ -304,9 +304,9 @@ export default function Rebalancing() {
       setShowSuccessModal(true);
       toast.success("Rebalance transaction sent!");
       startCountdown();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Rebalance failed:", error);
-      toast.error(error.message ?? "Rebalance failed");
+      toast.error(error instanceof Error ? error.message : "Rebalance failed");
     } finally {
       setIsSending(false);
     }
@@ -335,8 +335,8 @@ export default function Rebalancing() {
       <h2 className="text-lg font-bold">Rebalancing Company</h2>
 
       <p className="text-sm text-muted-foreground">
-        Reallocate the company's USDC balance from other networks following a
-        users payment.
+        Reallocate the company&apos;s USDC balance from other networks following
+        a users payment.
       </p>
 
       <Dialog open={open} onOpenChange={setOpen}>

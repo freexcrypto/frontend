@@ -3,11 +3,6 @@ import { Button } from "@/components/ui/button";
 import { CreditCard, Plus, Link2, Bot } from "lucide-react";
 import Link from "next/link";
 import React from "react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Chat } from "../Chat";
 
 export default function BoxNavigation() {
@@ -32,16 +27,6 @@ export default function BoxNavigation() {
             from Freex.
           </p>
         </div>
-        {/* <Tooltip>
-          <TooltipTrigger asChild>
-            <Button size={"sm"}>
-              <Plus /> Chat Assistant
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>This feature is available soon</p>
-          </TooltipContent>
-        </Tooltip> */}
         <Chat />
       </div>
       <div className="border rounded-md p-5 space-y-5">

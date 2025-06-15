@@ -1,4 +1,4 @@
-import { baseSepolia, arbitrumSepolia, base, arbitrum } from "viem/chains";
+import { base, arbitrum } from "viem/chains";
 import { useAccount } from "wagmi";
 
 export type ReceiveTokenType = {

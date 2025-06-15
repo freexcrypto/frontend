@@ -14,15 +14,20 @@ import {
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useChat } from "ai/react";
+import { useChat, type Message } from "ai/react";
 import { useAccount, useSendTransaction } from "wagmi";
 import { parseEther } from "viem";
-import { Loader, Loader2, Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import useGetBusinessByUser from "@/hooks/getBusinessbyUser";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-// Define prop types for the chat bubble component
+const codeStyle = vscDarkPlus;
+
 interface ChatBubbleProps {
   role: "user" | "assistant";
   children: React.ReactNode;
@@ -30,19 +35,24 @@ interface ChatBubbleProps {
   nameInitial: string;
 }
 
-// Tool invocation type for handling sendTransaction
+interface ToolInvocationResult {
+  to: string;
+  amount: string;
+}
+
 interface ToolInvocation {
   toolName: string;
   toolCallId: string;
   state: "running" | "result";
-  result?: {
-    to: string;
-    amount: string;
-  };
+  result?: ToolInvocationResult;
   txHash?: string;
 }
 
-// Animated message bubble with proper TypeScript typings
+// Replace all 'any' with explicit types:
+type MarkdownComponentProps = React.PropsWithChildren<
+  React.HTMLAttributes<HTMLElement>
+>;
+
 const ChatBubble: React.FC<ChatBubbleProps> = ({
   role,
   children,
@@ -59,9 +69,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
     >
       <div
         className={`max-w-prose p-4 rounded-lg flex shadow ${
-          isUser
-            ? "bg-primary text-secondary max-w-sm break-all"
-            : "bg-secondary text-gray-800 max-w-sm break-all"
+          isUser ? "" : "bg-secondary"
         }`}
       >
         {!isUser && (
@@ -73,49 +81,60 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
             )}
           </Avatar>
         )}
-        <div className="inline-block message-content whitespace-pre-line">
-          {children}
+        <div className="prose prose-sm dark:prose-invert overflow-x-auto">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              code({ inline, className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className || "");
+                return !inline && match ? (
+                  <SyntaxHighlighter
+                    // @ts-expect-error - Known type mismatch in react-syntax-highlighter
+                    style={codeStyle}
+                    language={match[1]}
+                    PreTag="div"
+                    {...props}
+                  >
+                    {String(children).replace(/\n$/, "")}
+                  </SyntaxHighlighter>
+                ) : (
+                  <code
+                    className="bg-gray-100 dark:bg-gray-800 rounded px-1 "
+                    {...props}
+                  >
+                    {children}
+                  </code>
+                );
+              },
+              p: (props: MarkdownComponentProps) => (
+                <p className="mb-2" {...props} />
+              ),
+              ul: (props: MarkdownComponentProps) => (
+                <ul className="list-disc pl-4 mb-2" {...props} />
+              ),
+              ol: (props: MarkdownComponentProps) => (
+                <ol className="list-decimal pl-4 mb-2" {...props} />
+              ),
+              li: (props: MarkdownComponentProps) => (
+                <li className="mb-1" {...props} />
+              ),
+              blockquote: (props: MarkdownComponentProps) => (
+                <blockquote
+                  className="border-l-4 border-gray-300 pl-4 italic my-2"
+                  {...props}
+                />
+              ),
+            }}
+          >
+            {children as string}
+          </ReactMarkdown>
         </div>
       </div>
     </motion.div>
   );
 };
 
-// Function to format messages, including code blocks
-const formatMessageContent = (content: string) => {
-  if (!content.includes("```")) return <span>{content}</span>;
-
-  const segments: React.ReactNode[] = [];
-  let idx = 0;
-  let nextCode = content.indexOf("```", idx);
-
-  while (nextCode !== -1) {
-    if (nextCode > idx) {
-      segments.push(<span key={idx}>{content.slice(idx, nextCode)}</span>);
-    }
-    const end = content.indexOf("```", nextCode + 3);
-    if (end === -1) break;
-    const codeText = content.slice(nextCode + 3, end).trim();
-    segments.push(
-      <pre
-        key={nextCode}
-        className="bg-gray-100 text-gray-900 p-3 rounded my-2 overflow-x-auto"
-      >
-        <code>{codeText}</code>
-      </pre>
-    );
-    idx = end + 3;
-    nextCode = content.indexOf("```", idx);
-  }
-
-  if (idx < content.length) {
-    segments.push(<span key={idx}>{content.slice(idx)}</span>);
-  }
-
-  return <>{segments}</>;
-};
-
-export const Chat = () => {
+export const Chat: React.FC = () => {
   const { address, chain } = useAccount();
   const { business } = useGetBusinessByUser();
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
@@ -123,7 +142,7 @@ export const Chat = () => {
       initialMessages: [
         {
           role: "assistant",
-          content: `Hello! I'm ${business?.nama} AI, your payment assistant. wallet address: ${address}. How can I help today?`,
+          content: `Hello! I&apos;m ${business?.nama} AI, your payment assistant. wallet address: ${address}. **How can I help today?**`,
           id: "assistant-init",
         },
       ],
@@ -184,15 +203,16 @@ export const Chat = () => {
                 Send Transaction
               </Button>
             )}
-            <Link
-              href={`${chain?.blockExplorers?.default.url}/tx/${currentInv.txHash}`}
-              target="_blank"
-              className="mt-2 text-sm text-gray-600 break-all"
-            >
-              {currentInv.txHash
-                ? `Transaction sent: ${currentInv.txHash}`
-                : null}
-            </Link>
+            {currentInv.txHash && (
+              <Link
+                href={`${chain?.blockExplorers?.default.url}/tx/${currentInv.txHash}`}
+                target="_blank"
+                className="mt-2 text-sm text-gray-600 break-all"
+              >
+                Transaction hash:{" "}
+                <strong>{currentInv.txHash.slice(0, 10)}</strong>
+              </Link>
+            )}
           </div>
         );
       }
@@ -214,7 +234,7 @@ export const Chat = () => {
           <Plus className="w-4 h-4" /> Chat Assistant
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl p-0">
+      <DialogContent className="xl:max-w-fit p-0">
         <div className="flex flex-col h-full">
           <DialogHeader className="px-6 py-4 bg-primary text-white rounded-t-lg">
             <DialogTitle className="text-xl font-semibold">
@@ -227,16 +247,19 @@ export const Chat = () => {
           <Card className="flex-1 m-4 p-0 overflow-hidden">
             <ScrollArea className="h-[60vh] p-4">
               <AnimatePresence initial={false} mode="wait">
-                {messages.map((msg, idx) => (
+                {messages.map((msg: Message, idx: number) => (
                   <React.Fragment key={msg.id ?? idx}>
                     <ChatBubble
                       role={msg.role as "user" | "assistant"}
                       logo={business?.logo}
-                      nameInitial={business?.nama.charAt(0) ?? ""}
+                      nameInitial={business?.nama?.charAt(0) ?? ""}
                     >
-                      {formatMessageContent(msg.content)}
+                      {msg.content}
                     </ChatBubble>
-                    {renderToolInvocations((msg as any).toolInvocations)}
+                    {renderToolInvocations(
+                      (msg as Message & { toolInvocations?: ToolInvocation[] })
+                        .toolInvocations
+                    )}
                   </React.Fragment>
                 ))}
                 <div ref={endRef} />

@@ -1,15 +1,15 @@
 import { tool as createTool } from "ai";
 import { z } from "zod";
 import { formatEther, createPublicClient, http } from "viem";
-import { mainnet } from "viem/chains";
+import { base } from "viem/chains";
 
 const publicClient = createPublicClient({
-  chain: mainnet,
+  chain: base,
   transport: http(),
 });
 
 export const balanceTool = createTool({
-  description: "Request the account balance of the user",
+  description: "Request the account balance of the user with formated balance",
   parameters: z.object({
     address: z.string().describe("The address of the user"),
   }),
