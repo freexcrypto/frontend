@@ -19,7 +19,7 @@ export function NavbarHome() {
       link: "/dashboard",
     },
     {
-      name: "Invoice",
+      name: "Payment AI",
       link: "/dashboard",
     },
     {

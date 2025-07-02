@@ -136,12 +136,17 @@ export default function useGetQuote({
       return;
     }
 
+    const circleRoute =
+      fromToken === "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
+
     const fetchQuote = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await fetch(
-          `https://li.quest/v1/quote/toAmount?fromChain=${fromChain}&toChain=${toChain}&fromToken=${fromToken}&toToken=${toToken}&fromAddress=${fromAddress}&toAddress=${toAddress}&toAmount=${toAmount}&order=CHEAPEST`,
+          `https://li.quest/v1/quote/toAmount?fromChain=${fromChain}&toChain=${toChain}&fromToken=${fromToken}&toToken=${toToken}&fromAddress=${fromAddress}&toAddress=${toAddress}&toAmount=${toAmount}&order=CHEAPEST${
+            circleRoute ? "&allowBridges=celerCircle" : ""
+          }`,
           {
             cache: "no-store",
           }

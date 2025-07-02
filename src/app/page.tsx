@@ -1,8 +1,9 @@
 import Hero from "@/components/layouts/home/Hero";
 import { NavbarHome } from "@/components/layouts/home/NavbarHome";
-import Supported from "@/components/layouts/home/Supported";
 import Benefits from "@/components/layouts/home/Benefits";
 import { Testimonials } from "@/components/layouts/home/Testimonials";
+import { Supported } from "@/components/layouts/home/Supported";
+import { Pricing } from "@/components/layouts/home/Pricing";
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
       <Hero />
       <Supported />
       <Benefits />
+      <Pricing />
       <Testimonials />
     </main>
   );
